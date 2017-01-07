@@ -1,5 +1,5 @@
 /*** 
- * LCD driver for controller pcd8544 / Nokia 5110, 3110 /
+ * LCD driver for controller st7735 / Nokia 5110, 3110 /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
