@@ -4,6 +4,11 @@
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
+ * @author  Marian Hrinko
+ * @datum   24.12.2016
+ * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
+ *              http://w8bh.net/avr/AvrTFT.pdf
+ *
  */
 #ifndef F_CPU
   #define F_CPU 16000000UL
