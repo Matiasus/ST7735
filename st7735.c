@@ -1,5 +1,5 @@
 /*** 
- * LCD driver for controller st7735 / Nokia 5110, 3110 /
+ * LCD driver for controller st7735 / 1.8 tft /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
