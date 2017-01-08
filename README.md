@@ -8,5 +8,4 @@
 <p><img src="st7735.jpg" /></p>
 
 <h2>Inspiration, Acknowledge</h2>
-
-https://github.com/adafruit/Adafruit-ST7735-Library
+<p>https://github.com/adafruit/Adafruit-ST7735-Library</p>
