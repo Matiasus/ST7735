@@ -7,5 +7,5 @@
 <h2>Demonstration</h2>
 <p><img src="st7735.jpg" /></p>
 
-<h2>Inspiration, Acknowledge</h2>
+<h2>Inspiration & Acknowledgement</h2>
 <p>https://github.com/adafruit/Adafruit-ST7735-Library</p>
