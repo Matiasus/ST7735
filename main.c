@@ -1,12 +1,15 @@
-/*** 
- * Example drive LCD controller st7735 / 1.8 tft display /
+/** 
+ * Example of TFT controller st7735 / 1.8 TFT DISPLAY /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
- * @author  Marian Hrinko
- * @datum   24.12.2016
+ * @author      Marian Hrinko
+ * @datum       08.01.2016
+ * @file        main.c
+ * @tested      AVR Atmega16
  * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
+ *              https://github.com/adafruit/Adafruit-ST7735-Library
  *              http://w8bh.net/avr/AvrTFT.pdf
  *
  */
@@ -17,10 +20,6 @@
 #include <util/delay.h>
 #include "lib/st7735.h"
 
-void flash(uint16_t);
-void TFTClear(void);
-
-
 /**
  * @description Main function
  *
@@ -29,40 +28,27 @@ void TFTClear(void);
  */
 int main(void)
 { 
-  DDRA |= (1 << PA0);
-
   // init st7735 driver
   St7735Init();
-  flash(1000);
-
   // clear screen
   ClearScreen(0xffff);
 
   // draw line
-  DrawLine(10, 117, 20, 20, 0x04af);
-  DrawLine(10, 117, 21, 21, 0x04af);
-  DrawLine(10, 117, 22, 22, 0x04af);
-
-  SetPosition(25, 10);
+  DrawLine(23, 137, 20, 20, 0x04af);
+  // draw line
+  DrawLine(23, 137, 21, 21, 0x04af);
+  // set text position
+  SetPosition(41, 10);
+  // draw text
   DrawString("ST7735 DRIVER", 0x007b);
-
-  SetPosition(37, 26);
+  // set text position
+  SetPosition(53, 26);
+  // draw text
   DrawString("ATMEGA 16", 0x0000);
-  
+  // display on
+  UpdateScreen();
+
   // return Null
   return 0;
 }
 
-/**
- * @description Flash led
- *
- * @param uint8_t
- * @return void
- */
-void flash(uint16_t time)
-{
-  DelayMs(time);
-  PORTA &= ~(1 << PA0);
-  DelayMs(time);
-  PORTA |=  (1 << PA0);
-}
