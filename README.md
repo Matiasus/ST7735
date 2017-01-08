@@ -1,4 +1,4 @@
-# 1.8 TFT LCD
+# 162x132 LCD
 <h2> ST7735 driver</h2>
 
 <p>1.8 TFT LCD Driver St7735 for AVR Atmega16</p>
