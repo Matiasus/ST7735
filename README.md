@@ -8,4 +8,9 @@
 <p><img src="st7735.jpg" /></p>
 
 <h2>Inspiration & Acknowledgement</h2>
-<p>https://github.com/adafruit/Adafruit-ST7735-Library</p>
+<p>
+<a href="http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf" target="_blank">http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf</a><br/>
+<a href="https://github.com/adafruit/Adafruit-ST7735-Library" target="_blank">https://github.com/adafruit/Adafruit-ST7735-Library</a><br/>
+<a href="http://w8bh.net/avr/AvrTFT.pdf" target="_blank">http://w8bh.net/avr/AvrTFT.pdf</a><br/>
+
+</p>
