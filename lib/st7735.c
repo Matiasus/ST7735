@@ -681,7 +681,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
-    D = delta_y - delta_x + delta_x;
+    D = delta_y - delta_x - delta_x;
     // draw first pixel
     DrawPixel(x1, y1, color);
     // check if y2 equal y1
