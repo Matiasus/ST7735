@@ -1,13 +1,8 @@
 /*** 
- * LCD driver for controller st7735 / 1.8 tft /
+ * LCD driver for controller pcd8544 / Nokia 5110, 3110 /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
- *
- * @author  Marian Hrinko
- * @datum   24.12.2016
- * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
- *              http://w8bh.net/avr/AvrTFT.pdf
  *
  */
 #ifndef F_CPU
@@ -15,6 +10,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -24,7 +20,7 @@
 /** @array Init command */
 const uint8_t INIT_ST7735B[] PROGMEM = {
     // 10 commands in list:
-    12,
+    11,
     // Software reset
     //  no arguments
     //  delay
@@ -159,12 +155,14 @@ const uint8_t INIT_ST7735B[] PROGMEM = {
       NORON, 
         DELAY, 
            10,  // 10 ms delay
+/*
     // Main screen turn on
     //  no arguments
     //  delay
      DISPON,
         DELAY,  
           255   // 255 = 500 ms delay
+*/
 };
 /** @array Charset */
 const uint8_t CHARACTERS[][5] PROGMEM = {
@@ -433,6 +431,20 @@ void SendColor565(uint16_t data, uint16_t count)
 }
 
 /**
+ * @description Update screen
+ *
+ * @param void
+ * @return void
+ */
+void UpdateScreen(void)
+{
+  // display on
+  CmdOrDataSend(COMMAND, DISPON);
+  // delay
+  DelayMs(200);
+}
+
+/**
  * @description Set Window
  *
  * @param uint8_t
@@ -608,11 +620,11 @@ void DrawString(char *str, uint16_t color)
 char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
 {
   // determinant
-  int D;
+  int16_t D;
   // deltas
-  int8_t delta_x, delta_y;
+  int16_t delta_x, delta_y;
   // steps
-  int8_t trace_x = 1, trace_y = 1;
+  int16_t trace_x = 1, trace_y = 1;
 
   // delta x
   delta_x = x2 - x1;
@@ -636,7 +648,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   }
 
   // Bresenham condition for m < 1 (dy < dx)
-  if (delta_y <= delta_x) {
+  if (delta_y < delta_x) {
     // calculate determinant
     D = delta_y + delta_y - delta_x;
     // draw first pixel
@@ -660,25 +672,24 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
-    D = -2*delta_x + delta_y;
+    D = delta_y - delta_x + delta_x;
     // draw first pixel
-    DrawPixel(x2, y2, color);
+    DrawPixel(x1, y1, color);
     // check if y2 equal y1
-    while (y2 != y1) {
-      // update y2
-      y2 -= trace_y;
+    while (y1 != y2) {
+      // update y1
+      y1 += trace_y;
       // check if determinant is positive
-      if (D >= 0) {
+      if (D <= 0) {
         // update y1
-        x2 -= trace_x;
+        x1 += trace_x;
         // update determinant
         D += 2*delta_y;    
       }
       // update deteminant
       D -= 2*delta_x;
       // draw next pixel
-      DrawPixel(x2, y2, color);
-      //_delay_ms(250);
+      DrawPixel(x1, y1, color);
     }
   }
   // success return

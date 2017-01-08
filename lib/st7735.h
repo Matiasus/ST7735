@@ -1,5 +1,5 @@
 /*** 
- * LCD driver for controller st7735 / 1.8 tft display /
+ * LCD driver for controller st7735 /1.8 tft display /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
