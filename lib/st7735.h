@@ -1,12 +1,15 @@
-/*** 
- * LCD driver for controller st7735 /1.8 tft display /
+/** 
+ * LCD driver for controller st7735.h / 1.8 TFT DISPLAY /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
- * @author  Marian Hrinko
- * @datum   24.12.2016
+ * @author      Marian Hrinko
+ * @datum       08.01.2016
+ * @file        st7735.h
+ * @tested      AVR Atmega16
  * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
+ *              https://github.com/adafruit/Adafruit-ST7735-Library
  *              http://w8bh.net/avr/AvrTFT.pdf
  *
  */
@@ -101,9 +104,9 @@
 
   // MV = 0 in MADCTL
   // max columns
-  #define MAX_X 132
+  #define MAX_X 162
   // max rows
-  #define MAX_Y 162
+  #define MAX_Y 132
   // columns max counter
   #define SIZE_X MAX_X - 1
   // rows max counter

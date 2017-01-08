@@ -1,8 +1,16 @@
-/*** 
- * LCD driver for controller pcd8544 / Nokia 5110, 3110 /
+/** 
+ * LCD driver for controller st7735.c / 1.8 TFT DISPLAY /
  *
  * Copyright (C) 2016 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
+ *
+ * @author      Marian Hrinko
+ * @datum       08.01.2016
+ * @file        st7735.c
+ * @tested      AVR Atmega16
+ * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
+ *              https://github.com/adafruit/Adafruit-ST7735-Library
+ *              http://w8bh.net/avr/AvrTFT.pdf
  *
  */
 #ifndef F_CPU
@@ -24,14 +32,15 @@ const uint8_t INIT_ST7735B[] PROGMEM = {
     // Software reset
     //  no arguments
     //  delay
-    SWRESET,   DELAY,  
-         150,      // 150 ms delay
+    SWRESET, 
+        DELAY,  
+          200,  // 200 ms delay
     // Out of sleep mode, 
     //  no arguments, 
     //  delay
     SLPOUT,
         DELAY,  
-          255, // 255 = 500 ms delay
+          200,  // 200 ms delay
     // Set color mode, 
     //  1 argument
     //  delay
@@ -91,7 +100,7 @@ const uint8_t INIT_ST7735B[] PROGMEM = {
          //  MH: horizontal refresh order 
          //      0 -> refresh left to right 
          //      1 -> refresh right to left  
-         0x00,
+         0xA0,
     // Display settings #5, 
     //  2 arguments 
     //  no delay
@@ -161,7 +170,7 @@ const uint8_t INIT_ST7735B[] PROGMEM = {
     //  delay
      DISPON,
         DELAY,  
-          255   // 255 = 500 ms delay
+          200   // 200 ms delay
 */
 };
 /** @array Charset */
@@ -348,9 +357,9 @@ void St7735Init(void)
  */
 void St7735Commands(const uint8_t *commands)
 {
-  uint8_t  numOfCommands;
-  uint8_t  numOfArguments;
-  uint16_t milliseconds;
+  uint8_t milliseconds;
+  uint8_t numOfCommands;
+  uint8_t numOfArguments;
 
   // number of commnads
   numOfCommands = pgm_read_byte(commands++);
@@ -371,7 +380,7 @@ void St7735Commands(const uint8_t *commands)
       CmdOrDataSend(DATA, pgm_read_byte(commands++));
     }
     // check if delay set
-    if(milliseconds) {
+    if (milliseconds) {
       // value in milliseconds
       milliseconds = pgm_read_byte(commands++);
       // delay
@@ -699,20 +708,13 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
 /**
  * @description Delay
  *
- * @param uint16_t time in milliseconds
+ * @param uint8_t time in milliseconds
  * @return void
  */
 void DelayMs(uint8_t time)
 {
-  // real time
-  uint16_t rTime = time;
-  // check if 255  
-  if (time == 255) {
-    // set real time 255 => 500 ms
-    rTime = 500;
-  }  
   // loop through real time
-  while (rTime--) {
+  while (time--) {
     // 1 s delay
     _delay_ms(1);
   }
