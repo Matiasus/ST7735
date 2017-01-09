@@ -167,13 +167,28 @@
   void St7735Commands(const uint8_t *commands);
 
   /**
-   * @description Command/data send
+   * @description Comand send
    *
-   * @param EnumCmdOrData /see st7735.h/
-   * @param uint8_t
-   * @return uint8_t
+   * @param uint8_t command
+   * @return void
    */
-  uint8_t CmdOrDataSend(enumCmdOrData, uint8_t);
+  uint8_t CommandSend(uint8_t);
+
+  /**
+   * @description 8 bits data send
+   *
+   * @param uint8_t 
+   * @return void
+   */
+  uint8_t Data8BitsSend(uint8_t);
+
+  /**
+   * @description 16 bits data send
+   *
+   * @param uint16_t 
+   * @return void
+   */
+  uint8_t Data16BitsSend(uint16_t);
 
   /**
    * @description Set window
@@ -187,7 +202,7 @@
   uint8_t SetWindow(uint8_t, uint8_t, uint8_t, uint8_t);
 
   /**
-   * @description Send word - 2 bytes (16 bites)
+   * Write color pixels
    *
    * @param uint16_t
    * @param uint16_t 

@@ -27,7 +27,7 @@
 
 /** @array Init command */
 const uint8_t INIT_ST7735B[] PROGMEM = {
-    // 10 commands in list:
+    // 11 commands in list:
     11,
     // Software reset
     //  no arguments
@@ -309,9 +309,10 @@ void SpiInit(void)
           (1 << ST7735_DC_LD);
   // SPE  - SPI Enale
   // MSTR - Master device
-  // SPR0 - Prescaler fclk/4 = 4MHz
   SPCR |= (1 << SPE) | 
           (1 << MSTR);
+  // SPI2X - Prescaler fclk/2 = 8MHz
+  SPSR |= (1 << SPI2X);
 }
 
 /**
@@ -367,7 +368,7 @@ void St7735Commands(const uint8_t *commands)
   // loop through whole command list
   while (numOfCommands--) {
     // send command
-    CmdOrDataSend(COMMAND, pgm_read_byte(commands++));
+    CommandSend(pgm_read_byte(commands++));
     // read number of arguments
     numOfArguments = pgm_read_byte(commands++);
     // check if delay set
@@ -377,7 +378,7 @@ void St7735Commands(const uint8_t *commands)
     // loop through number of arguments
     while (numOfArguments--) {
       // send arguments
-      CmdOrDataSend(DATA, pgm_read_byte(commands++));
+      Data8BitsSend(pgm_read_byte(commands++));
     }
     // check if delay set
     if (milliseconds) {
@@ -390,29 +391,23 @@ void St7735Commands(const uint8_t *commands)
 }
 
 /**
- * @description Comand/data send
+ * @description Command send
  *
- * @param enumCmdOrData /see st7735.h/
- * @param uint8_t 
+ * @param uint8_t command
  * @return void
  */
-uint8_t CmdOrDataSend(enumCmdOrData cmdOrData, uint8_t data)
+uint8_t CommandSend(uint8_t data)
 {
   // chip enable - active low
   PORT &= ~(1 << ST7735_CS_LD);
-  // check if data
-  if (cmdOrData == DATA) {
-    // data (active high)
-    PORT |= (1 << ST7735_DC_LD);
-  // command
-  } else {
-    // command (active low)
-    PORT &= ~(1 << ST7735_DC_LD);
-  }
+  // command (active low)
+  PORT &= ~(1 << ST7735_DC_LD);
+
   // transmitting data
   SPDR = data;
   // wait till data transmit
   while (!(SPSR & (1 << SPIF)));
+
   // chip disable - idle high
   PORT |= (1 << ST7735_CS_LD);
   // return received data
@@ -420,37 +415,56 @@ uint8_t CmdOrDataSend(enumCmdOrData cmdOrData, uint8_t data)
 }
 
 /**
- * Write color pixels
+ * @description 8 bits data send
  *
- * @param uint16_t
- * @param uint16_t 
- * @return Null
+ * @param uint8_t 
+ * @return void
  */
-void SendColor565(uint16_t data, uint16_t count)
+uint8_t Data8BitsSend(uint8_t data)
 {
-  // access to RAM
-  CmdOrDataSend(COMMAND, RAMWR);
-  // counter
-  while (count--) {
-    // write high byte
-    CmdOrDataSend(DATA, (uint8_t) (data >> 8)); 
-    // write low byte
-    CmdOrDataSend(DATA, (uint8_t) (data)); 
-  }
+  // chip enable - active low
+  PORT &= ~(1 << ST7735_CS_LD);
+  // data (active high)
+  PORT |= (1 << ST7735_DC_LD);
+
+  // transmitting data
+  SPDR = data;
+  // wait till data transmit
+  while (!(SPSR & (1 << SPIF)));
+
+  // chip disable - idle high
+  PORT |= (1 << ST7735_CS_LD);
+  // return received data
+  return SPDR;
 }
 
 /**
- * @description Update screen
+ * @description 16 bits data send
  *
- * @param void
+ * @param uint16_t 
  * @return void
  */
-void UpdateScreen(void)
+uint8_t Data16BitsSend(uint16_t data)
 {
-  // display on
-  CmdOrDataSend(COMMAND, DISPON);
-  // delay
-  DelayMs(200);
+  // chip enable - active low
+  PORT &= ~(1 << ST7735_CS_LD);
+  // data (active high)
+  PORT |= (1 << ST7735_DC_LD);
+
+  // transmitting data high byte
+  SPDR = (uint8_t) (data >> 8);
+  // wait till high byte transmit
+  while (!(SPSR & (1 << SPIF)));
+
+  // transmitting data low byte
+  SPDR = (uint8_t) (data);
+  // wait till low byte transmit
+  while (!(SPSR & (1 << SPIF)));
+
+  // chip disable - idle high
+  PORT |= (1 << ST7735_CS_LD);
+  // return received data
+  return SPDR;
 }
 
 /**
@@ -473,33 +487,51 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
     return 0;
   }  
   // column address set
-  CmdOrDataSend(COMMAND, CASET);
+  CommandSend(CASET);
   // start x position
-  CmdOrDataSend(DATA, 0x00);
+  Data8BitsSend(0x00);
   // start x position
-  CmdOrDataSend(DATA, x0);
+  Data8BitsSend(x0);
   // start x position
-  CmdOrDataSend(DATA, 0x00);
+  Data8BitsSend(0x00);
   // end x position
-  CmdOrDataSend(DATA, x1);
+  Data8BitsSend(x1);
   // row address set
-  CmdOrDataSend(COMMAND, RASET);
+  CommandSend(RASET);
   // start x position
-  CmdOrDataSend(DATA, 0x00);
+  Data8BitsSend(0x00);
   // start y position
-  CmdOrDataSend(DATA, y0);
+  Data8BitsSend(y0);
   // start x position
-  CmdOrDataSend(DATA, 0x00);
+  Data8BitsSend(0x00);
   // end y position
-  CmdOrDataSend(DATA, y1);
+  Data8BitsSend(y1);
   // success
   return 1;
 }
 
 /**
+ * Write color pixels
+ *
+ * @param uint16_t
+ * @param uint16_t 
+ * @return void
+ */
+void SendColor565(uint16_t data, uint16_t count)
+{
+  // access to RAM
+  CommandSend(RAMWR);
+  // counter
+  while (count--) {
+    // write color
+    Data16BitsSend(data); 
+  }
+}
+
+/**
  * @description Clear screen
  *
- * @param void
+ * @param uint16_t color
  * @return void
  */
 void ClearScreen(uint16_t color)
@@ -508,6 +540,20 @@ void ClearScreen(uint16_t color)
   SetWindow(0, SIZE_X, 0, SIZE_Y);
   // draw individual pixels
   SendColor565(color, CACHE_SIZE_MEM);
+}
+
+/**
+ * @description Update screen
+ *
+ * @param void
+ * @return void
+ */
+void UpdateScreen(void)
+{
+  // display on
+  CommandSend(DISPON);
+  // delay
+  DelayMs(200);
 }
 
 /**
