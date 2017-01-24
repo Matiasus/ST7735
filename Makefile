@@ -1,15 +1,11 @@
 #
-# 'description' makefile for compiling, linking and flashing code to microcontroller
-# 'inspiration' https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
-#               https://wiki.hacdc.org/index.php/AVR_Makefile
+# @description makefile for compiling, linking and flashing code to microcontroller
+# @inspiration https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
+#              https://wiki.hacdc.org/index.php/AVR_Makefile
 #
 # @author      Marian Hrinko
 # @datum       21.01.2017
-
-# @notes				
-# Suffix Replacement within a macro: $(name:string1=string2)
-# For each word in 'name' replace 'string1' with 'string2'
-# For example $(DEPENDENCIES:.c=.o)
+#
 
 # BASIC CONFIGURATION, SETTINGS
 # ------------------------------------------------------------------
@@ -59,6 +55,10 @@ SFLAGS        = --mcu=$(DEVICE) --format=avr
 SOURCES      := $(wildcard *.c $(LIBDIR)/*.c)
 #
 # Target and dependencies .o
+# @notes				
+# Suffix Replacement within a macro: $(name:string1=string2)
+# For each word in 'name' replace 'string1' with 'string2'
+# For example $(SOURCES:.c=.o)
 OBJECTS	      = $(SOURCES:.c=.o)
 
 # AVRDUDE CONFIGURATION, SETTINGS
