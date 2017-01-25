@@ -12,13 +12,13 @@
 
 #
 # Final file
-TARGET      	= main
+TARGET        = main
 #
 # Library directory
 LIBDIR        = lib
 #
 # Type of microcontroller
-DEVICE        = atmega16
+MMCU          = atmega16
 #
 # Frequency
 FCPU          = 16000000
@@ -30,7 +30,7 @@ OPTIMIZE      = Os
 CC            = avr-gcc
 #
 # Compiler flags
-CFLAGS        = -g -Wall -mmcu=$(DEVICE) -DF_CPU=$(FCPU) -$(OPTIMIZE)
+CFLAGS        = -g -Wall -mmcu=$(MMCU) -DF_CPU=$(FCPU) -$(OPTIMIZE)
 #
 # Includes
 INCLUDES      = -I.
@@ -43,13 +43,13 @@ OBJCOPY       = avr-objcopy
 #
 # Objcopy, create hex file flags 
 # -R .eeprom -O ihex or -j .data -j .text -O ihex
-OBJFLAGS    	= -j .data -j .text -O ihex
+OBJFLAGS      = -j .data -j .text -O ihex
 #
 # Size of file
 AVRSIZE       = avr-size
 #
 # Size flags
-SFLAGS        = --mcu=$(DEVICE) --format=avr
+SFLAGS        = --mcu=$(MMCU) --format=avr
 #
 # Target and dependencies .c
 SOURCES      := $(wildcard *.c $(LIBDIR)/*.c)
@@ -65,7 +65,7 @@ OBJECTS	      = $(SOURCES:.c=.o)
 # -------------------------------------------------------------------
 
 #
-# AVRDUDE
+# AVRDUDE COMMAND
 AVRDUDE       = avrdude
 #
 # AVRDUDE PORT
@@ -77,11 +77,8 @@ AVRDUDE_PROG  = usbasp
 # AVRDUDE BAUD RATE
 AVRDUDE_BAUD  = 19200
 #
-# AVRDUDE BAUD RATE
-AVROBJ_FORMAT = ihex
-#
 # AVRDUDE FLAGS
-AVRDUDE_FLAGS = -p $(DEVICE) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROG) -b $(AVRDUDE_BAUD) -u -U
+AVRDUDE_FLAGS = -p $(MMCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROG) -b $(AVRDUDE_BAUD) -u -U
 
 # 
 # Create file to programmer
