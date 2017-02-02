@@ -280,6 +280,7 @@ int cacheMemIndexCol = 0;
 
 /**
  * @description Hardware Reset Impulse - minimal time required 120 ms
+ *              Used only if no software reset (SWRESET) defined in Command list 
  *
  * @param void
  * @return void
@@ -334,7 +335,7 @@ void SpiEnd(void)
  */
 void St7735Init(void)
 {
-  // Actiavte pull-up register logical high on pin RST
+  // Actiavte pull-up rezistor - logical high on pin RST
   HW_RESET_PORT |= (1 << HW_RESET_PIN);
   // DDR as output
   HW_RESET_DDR  |= (1 << HW_RESET_PIN); 
