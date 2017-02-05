@@ -30,6 +30,9 @@
   #ifndef ST7735_BL
     #define ST7735_BL     PB2
   #endif
+  #ifndef ST7735_CS_SD
+    #define ST7735_CS_SD  PB3
+  #endif
   #ifndef ST7735_CS_LD
     #define ST7735_CS_LD  PB4
   #endif
@@ -70,7 +73,6 @@
   #define DISPOFF 0x28
   #define DISPON  0x29
   #define RAMRD   0x2E
-
   #define CASET   0x2A
   #define RASET   0x2B
   #define RAMWR   0x2C
@@ -113,21 +115,31 @@
   #define SIZE_Y MAX_Y - 1
   // whole pixels
   #define CACHE_SIZE_MEM (MAX_X * MAX_Y)
+  // number of columns for chars
+  #define CHARS_COLS_LEN 5
+  // number of rows for chars
+  #define CHARS_ROWS_LEN 8
 
   /** @const Command list ST7735B */
   extern const uint8_t INIT_ST7735B[];
 
   /** @const Characters */
-  extern const uint8_t CHARACTERS[][5];
+  extern const uint8_t CHARACTERS[][CHARS_COLS_LEN];
 
-  /** @enum Command or data */
+  /** @enum Font sizes */
   typedef enum {
-    DATA = 1,     // active high
-    COMMAND = 0,  // active low
-  } enumCmdOrData;
+    // 1x high & 1x wide size
+    X1 = 0x00,
+    // 2x high & 1x wide size
+    X2 = 0x01,
+    // 2x high & 2x wider size
+    // 0x0A is set because need to offset 5 position to right
+    //      when draw the characters of string 
+    X3 = 0x0A
+  } ESizes;
 
   /**
-   * @description Hardware Reset
+   * @description     Hardware Reset
    *
    * @param void
    * @return void
@@ -135,7 +147,7 @@
   void HardwareReset(void);
 
   /**
-   * @description Initialise SPI communication
+   * @description     Initialise SPI communication
    *
    * @param void
    * @return void
@@ -143,15 +155,7 @@
   void SpiInit(void);
 
   /**
-   * @description End SPI communication
-   *
-   * @param void
-   * @return void
-   */
-  void SpiEnd(void);
-
-  /**
-   * @description Initialise st7735 driver
+   * @description     Initialise st7735 driver
    *
    * @param void
    * @return void
@@ -159,59 +163,142 @@
   void St7735Init(void);
 
   /**
-   * @description Send list commands
+   * @description     Send list commands
    *
-   * @param uint8_t *
+   * @param uint8_t*  array of commands
    * @return void
    */
   void St7735Commands(const uint8_t *commands);
 
   /**
-   * @description Comand send
+   * @description     Command send
    *
-   * @param uint8_t command
+   * @param uint8_t   command
    * @return void
    */
   uint8_t CommandSend(uint8_t);
 
   /**
-   * @description 8 bits data send
+   * @description     8 bits data send
    *
-   * @param uint8_t 
+   * @param uint8_t   data
    * @return void
    */
   uint8_t Data8BitsSend(uint8_t);
 
   /**
-   * @description 16 bits data send
+   * @description     16 bits data send
    *
-   * @param uint16_t 
+   * @param uint16_t  data
    * @return void
    */
   uint8_t Data16BitsSend(uint16_t);
 
   /**
-   * @description Set window
+   * @description     Set window
    *
-   * @param uint8_t x - start position
-   * @param uint8_t x - end position
-   * @param uint8_t y - start position
-   * @param uint8_t y - end position
+   * @param uint8_t   x - start position
+   * @param uint8_t   x - end position
+   * @param uint8_t   y - start position
+   * @param uint8_t   y - end position
    * @return uint8_t
    */
   uint8_t SetWindow(uint8_t, uint8_t, uint8_t, uint8_t);
 
   /**
-   * Write color pixels
+   * @description     Set pixel position x, y
    *
-   * @param uint16_t
-   * @param uint16_t 
+   * @param uint8_t   x - position
+   * @param uint8_t   y - position
+   * @return void
+   */
+  char SetPosition(uint8_t, uint8_t);
+
+  /**
+   * @description     Set partial area / window
+   *
+   * @param uint8_t   x - start row 
+   * @param uint8_t   x - end row
+   * @return uint8_t
+   */
+  uint8_t SetPartialArea(uint8_t, uint8_t);
+
+  /**
+   * @description     Write color pixels
+   *
+   * @param uint16_t  color
+   * @param uint16_t  number of cycles
    * @return void
    */
   void SendColor565(uint16_t, uint16_t);
 
   /**
-   * @description Clear screen
+   * @description     Draw pixel
+   *
+   * @param uint8_t   x position
+   * @param uint8_t   y position
+   * @param uint16_t  color
+   * @return void
+   */
+  void DrawPixel(uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @description     Draw character
+   *
+   * @param char      character
+   * @param uint16_t  color
+   * @param Esizes    see enum sizes in st7735.h
+   * @return void
+   */
+  char DrawChar(char, uint16_t, ESizes);
+
+  /**
+   * @description     Draw string
+   *
+   * @param char*     string
+   * @param uint16_t  color
+   * @param Esizes    see enum sizes in st7735.h
+   * @return void
+   */
+  void DrawString(char*, uint16_t, ESizes);
+
+  /**
+   * @description     Draw line
+   *
+   * @param uint8_t   x - start position
+   * @param uint8_t   x - end position
+   * @param uint8_t   y - start position
+   * @param uint8_t   y - end position
+   * @param uint16_t  color
+   * @return void
+   */
+  char DrawLine(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @description     Fast draw line horizontal
+   *
+   * @param uint8_t   x - start position
+   * @param uint8_t   x - end position
+   * @param uint8_t   y - position
+   * @param uint16_t  color
+   * @return void
+   */
+  void DrawLineHorizontal(uint8_t, uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @description     Fast draw line vertical
+   *
+   * @param uint8_t   x - position
+   * @param uint8_t   y - start position
+   * @param uint8_t   y - end position
+   * @param uint16_t  color
+   * @return void
+   */
+  void DrawLineVertical(uint8_t, uint8_t, uint8_t, uint16_t);
+
+
+  /**
+   * @description     Clear screen
    *
    * @param uint16_t color
    * @return void
@@ -219,7 +306,7 @@
   void ClearScreen(uint16_t);
 
   /**
-   * @description Update screen
+   * @description     Update screen
    *
    * @param void
    * @return void
@@ -227,58 +314,9 @@
   void UpdateScreen(void);
 
   /**
-   * @description Draw pixel
-   *
-   * @param uint8_t
-   * @param uint8_t
-   * @param uint16_t
-   * @return void
-   */
-  void DrawPixel(uint8_t, uint8_t, uint16_t);
-
-  /**
-   * @description Draw character
-   *
-   * @param char
-   * @param uint16_t color
-   * @return void
-   */
-  char DrawChar(char, uint16_t);
-
-  /**
-   * @description Draw string
-   *
-   * @param char*
-   * @param uint16_t color
-   * @return void
-   */
-  void DrawString(char*, uint16_t);
-
-  /**
-   * @description Set pixel position x, y
-   *
-   * @param uint8_t x - position
-   * @param uint8_t y - position
-   * @return void
-   */
-  char SetPosition(uint8_t, uint8_t);
-
-  /**
-   * @description Draw line
-   *
-   * @param uint8_t x - start position
-   * @param uint8_t x - end position
-   * @param uint8_t y - start position
-   * @param uint8_t y - end position
-   * @param uint16_t  color
-   * @return void
-   */
-  char DrawLine(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
-
-  /**
-   * @description Delay
+   * @description     Delay
    *l
-   * @param uint8_t delay in milliseconds
+   * @param uint8_t   delay in milliseconds
    * @return void
    */
   void DelayMs(uint8_t);

@@ -14,7 +14,7 @@
  *
  */
 #ifndef F_CPU
-  #define F_CPU 16000000UL
+  #define F_CPU 16000000
 #endif
 
 #include <stdio.h>
@@ -23,6 +23,7 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
+#include "spi.h"
 #include "st7735.h"
 
 /** @array Init command */
@@ -99,7 +100,8 @@ const uint8_t INIT_ST7735B[] PROGMEM = {
          // ------------------------------ 
          //  MH: horizontal refresh order 
          //      0 -> refresh left to right 
-         //      1 -> refresh right to left  
+         //      1 -> refresh right to left
+         // 0xA0 = 1010 0000  
          0xA0,
     // Display settings #5, 
     //  2 arguments 
@@ -280,13 +282,18 @@ int cacheMemIndexCol = 0;
 
 /**
  * @description Hardware Reset Impulse - minimal time required 120 ms
- *              Used only if no software reset (SWRESET) defined in Command list 
  *
  * @param void
  * @return void
  */
 void HardwareReset(void)
 {
+  // Actiavte pull-up register logical high on pin RST
+  HW_RESET_PORT |= (1 << HW_RESET_PIN);
+  // DDR as output
+  HW_RESET_DDR  |= (1 << HW_RESET_PIN); 
+  // delay 200 ms
+  _delay_ms(200);
   // Reset Low 
   HW_RESET_PORT &= ~(1 << HW_RESET_PIN);
   // delay 200 ms
@@ -317,17 +324,6 @@ void SpiInit(void)
 }
 
 /**
- * @description End SPI communication
- *
- * @param void
- * @return void
- */
-void SpiEnd(void)
-{
-  SPCR = 0x00;
-}
-
-/**
  * @description Initialise St7735 communication
  *
  * @param void
@@ -335,12 +331,6 @@ void SpiEnd(void)
  */
 void St7735Init(void)
 {
-  // Actiavte pull-up rezistor - logical high on pin RST
-  HW_RESET_PORT |= (1 << HW_RESET_PIN);
-  // DDR as output
-  HW_RESET_DDR  |= (1 << HW_RESET_PIN); 
-  // delay 200 ms
-  _delay_ms(200);
   // set DDR BackLigt
   DDR  |= (1 << ST7735_BL);
   // set high level on Backlight
@@ -403,12 +393,10 @@ uint8_t CommandSend(uint8_t data)
   PORT &= ~(1 << ST7735_CS_LD);
   // command (active low)
   PORT &= ~(1 << ST7735_DC_LD);
-
   // transmitting data
   SPDR = data;
   // wait till data transmit
   while (!(SPSR & (1 << SPIF)));
-
   // chip disable - idle high
   PORT |= (1 << ST7735_CS_LD);
   // return received data
@@ -427,12 +415,10 @@ uint8_t Data8BitsSend(uint8_t data)
   PORT &= ~(1 << ST7735_CS_LD);
   // data (active high)
   PORT |= (1 << ST7735_DC_LD);
-
   // transmitting data
   SPDR = data;
   // wait till data transmit
   while (!(SPSR & (1 << SPIF)));
-
   // chip disable - idle high
   PORT |= (1 << ST7735_CS_LD);
   // return received data
@@ -451,21 +437,67 @@ uint8_t Data16BitsSend(uint16_t data)
   PORT &= ~(1 << ST7735_CS_LD);
   // data (active high)
   PORT |= (1 << ST7735_DC_LD);
-
   // transmitting data high byte
   SPDR = (uint8_t) (data >> 8);
   // wait till high byte transmit
   while (!(SPSR & (1 << SPIF)));
-
   // transmitting data low byte
   SPDR = (uint8_t) (data);
   // wait till low byte transmit
   while (!(SPSR & (1 << SPIF)));
-
   // chip disable - idle high
   PORT |= (1 << ST7735_CS_LD);
   // return received data
   return SPDR;
+}
+
+/**
+ * Write color pixels
+ *
+ * @param uint16_t color
+ * @param uint16_t counter
+ * @return void
+ */
+void SendColor565(uint16_t color, uint16_t count)
+{
+  // access to RAM
+  CommandSend(RAMWR);
+  // counter
+  while (count--) {
+    // write color
+    Data16BitsSend(color);
+  }
+}
+
+/**
+ * @description Set Partial Area / Window
+ *
+ * @param uint8_t start row
+ * @param uint8_t end row
+ * @return void
+ */
+uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
+{
+  // check if coordinates is out of range
+  if ((sRow > SIZE_Y) ||
+      (eRow > SIZE_Y)) { 
+    // out of range
+    return 0;
+  }  
+  // column address set
+  CommandSend(PTLAR);
+  // start start Row
+  Data8BitsSend(0x00);
+  // start start Row
+  Data8BitsSend(sRow);
+  // row end Row
+  Data8BitsSend(0x00);
+  // end end Row
+  Data8BitsSend(eRow);
+  // column address set
+  CommandSend(PTLON);
+  // success
+  return 1;
 }
 
 /**
@@ -512,52 +544,6 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
 }
 
 /**
- * Write color pixels
- *
- * @param uint16_t
- * @param uint16_t 
- * @return void
- */
-void SendColor565(uint16_t data, uint16_t count)
-{
-  // access to RAM
-  CommandSend(RAMWR);
-  // counter
-  while (count--) {
-    // write color
-    Data16BitsSend(data); 
-  }
-}
-
-/**
- * @description Clear screen
- *
- * @param uint16_t color
- * @return void
- */
-void ClearScreen(uint16_t color)
-{
-  // set whole window
-  SetWindow(0, SIZE_X, 0, SIZE_Y);
-  // draw individual pixels
-  SendColor565(color, CACHE_SIZE_MEM);
-}
-
-/**
- * @description Update screen
- *
- * @param void
- * @return void
- */
-void UpdateScreen(void)
-{
-  // display on
-  CommandSend(DISPON);
-  // delay
-  DelayMs(200);
-}
-
-/**
  * @description Set text position x, y
  *
  * @param uint8_t x - position
@@ -576,15 +562,15 @@ char SetPosition(uint8_t x, uint8_t y)
   // and y is not out of range go to next line
   if ((x > MAX_X-6) &&
       (y < MAX_Y-8)) {
-    // change position x
-    cacheMemIndexRow = y + 8;
     // change position y
-    cacheMemIndexCol = 2;
-  } else {
-    // set x position
+    cacheMemIndexRow = y + 8;
+    // change position x
     cacheMemIndexCol = x;
-    // set y position 
+  } else {
+    // set position y 
     cacheMemIndexRow = y;
+    // set position x
+    cacheMemIndexCol = x;
   }
   // success
   return 1;
@@ -607,58 +593,125 @@ void DrawPixel(uint8_t x, uint8_t y, uint16_t color)
 }
 
 /**
- * @description Draw character
+ * @description     Draw character 2x larger
  *
- * @param char
- * @param uint16_t color
+ * @param char      character
+ * @param uint16_t  color
+ * @param Esizes    see enum sizes in st7735.h
  * @return void
  */
-char DrawChar(char character, uint16_t color)
+char DrawChar(char character, uint16_t color, ESizes size)
 {
-  char c;
-  uint8_t i;
-  uint8_t j;
+  // variables
+  uint8_t letter, idxCol, idxRow;
   // check if character is out of range
   if ((character < 0x20) &&
       (character > 0x7f)) { 
     // out of range
     return 0;
   }
-  // loop through 5 bytes
-  for (i = 0; i < 5; i++) {
-    // read from ROM memory 
-    c = pgm_read_byte(&CHARACTERS[character - 32][i]);
-    // loop through 8 bits
-    for (j = 0; j < 8; j++) {
-      // check if bit set
-      if ((c & 0x01) == 1) {
-        // draw pixel
-        DrawPixel(cacheMemIndexCol + i, cacheMemIndexRow + j, color);
+  // last column of character array - 5 columns 
+  idxCol = CHARS_COLS_LEN;
+  // last row of character array - 8 rows / bits
+  idxRow = CHARS_ROWS_LEN;
+
+  // --------------------------------------
+  // SIZE X1 - normal font 1x high, 1x wide
+  // --------------------------------------
+  if (size == X1) {  
+    // loop through 5 bytes
+    while (idxCol--) {
+      // read from ROM memory 
+      letter = pgm_read_byte(&CHARACTERS[character - 32][idxCol]);
+      // loop through 8 bits
+      while (idxRow--) {
+        // check if bit set
+        if ((letter & 0x80) == 0x80) {
+          // draw pixel 
+          DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + idxRow, color);
+        }
+        // byte move to left / next bit
+        letter = letter << 1;
       }
-      // byte move to right / next bit
-      c = c >> 1;
+      // fill index row again
+      idxRow = CHARS_ROWS_LEN;
+    }
+  // --------------------------------------
+  // SIZE X2 - font 2x higher, normal wide
+  // --------------------------------------
+  } else if (size == X2) {
+    // loop through 5 bytes
+    while (idxCol--) {
+      // read from ROM memory 
+      letter = pgm_read_byte(&CHARACTERS[character - 32][idxCol]);
+      // loop through 8 bits
+      while (idxRow--) {
+        // check if bit set
+        if ((letter & 0x80) == 0x80) {
+          // draw first left up pixel; 
+          // (idxRow << 1) - 2x multiplied 
+          DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1), color);
+          // draw second left down pixel
+          DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1) + 1, color);
+        }
+        // byte move to left / next bit
+        letter = letter << 1;
+      }
+      // fill index row again
+      idxRow = CHARS_ROWS_LEN;
+    }
+  // --------------------------------------
+  // SIZE X3 - font 2x higher, 2x wider
+  // --------------------------------------
+  } else if (size == X3) {
+    // loop through 5 bytes
+    while (idxCol--) {
+      // read from ROM memory 
+      letter = pgm_read_byte(&CHARACTERS[character - 32][idxCol]);
+      // loop through 8 bits
+      while (idxRow--) {
+        // check if bit set
+        if ((letter & 0x80) == 0x80) {
+          // draw first left up pixel; 
+          // (idxRow << 1) - 2x multiplied 
+          DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1), color);
+          // draw second left down pixel
+          DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1) + 1, color);
+          // draw third right up pixel
+          DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1), color);
+          // draw fourth right down pixel
+          DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1) + 1, color);
+        }
+        // byte move to left / next bit
+        letter = letter << 1;
+      }
+      // fill index row again
+      idxRow = CHARS_ROWS_LEN;
     }
   }
+
   // return exit
   return 0;
 }
 
 /**
- * @description Draw string
+ * @description     Draw string
  *
- * @param char *
- * @param uint16_t color
+ * @param char*     string 
+ * @param uint16_t  color
+ * @param Esizes    see enum sizes in st7735.h
  * @return void
  */
-void DrawString(char *str, uint16_t color)
+void DrawString(char *str, uint16_t color, ESizes size)
 {
+  // variables
   uint8_t i = 0;
-  // loop through 5 bytes
+  // loop through character of string
   while (str[i] != '\0') {
     //read characters and increment index
-    DrawChar(str[i++], color);
+    DrawChar(str[i++], color, size);
     // update position
-    SetPosition(cacheMemIndexCol + 6, cacheMemIndexRow);
+    SetPosition(cacheMemIndexCol + (CHARS_COLS_LEN + 1) + (size >> 1), cacheMemIndexRow);
   }
 }
 
@@ -706,7 +759,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   // Bresenham condition for m < 1 (dy < dx)
   if (delta_y < delta_x) {
     // calculate determinant
-    D = delta_y + delta_y - delta_x;
+    D = (1 << delta_y) - delta_x;
     // draw first pixel
     DrawPixel(x1, y1, color);
     // check if x1 equal x2
@@ -728,7 +781,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
-    D = delta_y - delta_x - delta_x;
+    D = delta_y - (1 << delta_x);
     // draw first pixel
     DrawPixel(x1, y1, color);
     // check if y2 equal y1
@@ -750,6 +803,86 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   }
   // success return
   return 1;
+}
+
+/**
+ * @description Fast draw line horizontal
+ *
+ * @param uint8_t xs - start position
+ * @param uint8_t xe - end position
+ * @param uint8_t y - position
+ * @param uint16_t  color
+ * @return void
+ */
+void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
+{
+  uint8_t temp;
+  // check if start is > as end  
+  if (xs > xe) {
+    // temporary safe
+    temp = xs;
+    // start change for end
+    xe = xs;
+    // end change for start
+    xs = temp;
+  }
+  // set window
+  SetWindow(xs, xe, y, y);
+  // draw pixel by 565 mode
+  SendColor565(color, xe - xs);
+}
+
+/**
+ * @description Fast draw line vertical
+ *
+ * @param uint8_t x - position
+ * @param uint8_t ys - start position
+ * @param uint8_t ye - end position
+ * @param uint16_t  color
+ * @return void
+ */
+void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
+{
+  uint8_t temp;
+  // check if start is > as end
+  if (ys > ye) {
+    // temporary safe
+    temp = ys;
+    // start change for end
+    ye = ys;
+    // end change for start
+    ys = temp;
+  }
+  // set window
+  SetWindow(x, x, ys, ye);
+  // draw pixel by 565 mode
+  SendColor565(color, ye - ys);
+}
+
+/**
+ * @description Clear screen
+ *
+ * @param uint16_t color
+ * @return void
+ */
+void ClearScreen(uint16_t color)
+{
+  // set whole window
+  SetWindow(0, SIZE_X, 0, SIZE_Y);
+  // draw individual pixels
+  SendColor565(color, CACHE_SIZE_MEM);
+}
+
+/**
+ * @description Update screen
+ *
+ * @param void
+ * @return void
+ */
+void UpdateScreen(void)
+{
+  // display on
+  CommandSend(DISPON);
 }
 
 /**
