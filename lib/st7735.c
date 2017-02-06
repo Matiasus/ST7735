@@ -553,17 +553,17 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
 char SetPosition(uint8_t x, uint8_t y)
 {
   // check if coordinates is out of range
-  if ((x > MAX_X-6) &&
-      (y > MAX_Y-8)) {
+  if ((x > MAX_X - (CHARS_COLS_LEN + 1)) &&
+      (y > MAX_Y - (CHARS_ROWS_LEN))) {
     // out of range
     return 0;
   }
   // check if x coordinates is out of range
   // and y is not out of range go to next line
-  if ((x > MAX_X-6) &&
-      (y < MAX_Y-8)) {
+  if ((x > MAX_X - (CHARS_COLS_LEN + 1)) &&
+      (y < MAX_Y - (CHARS_ROWS_LEN))) {
     // change position y
-    cacheMemIndexRow = y + 8;
+    cacheMemIndexRow = y + CHARS_ROWS_LEN;
     // change position x
     cacheMemIndexCol = x;
   } else {
@@ -615,9 +615,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
   // last row of character array - 8 rows / bits
   idxRow = CHARS_ROWS_LEN;
 
-  // --------------------------------------
-  // SIZE X1 - normal font 1x high, 1x wide
-  // --------------------------------------
+  // ----------------------------------------
+  // SIZE X1 - normal font: 1x high, 1x wide
+  // ----------------------------------------
   if (size == X1) {  
     // loop through 5 bytes
     while (idxCol--) {
@@ -636,9 +636,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
-  // --------------------------------------
-  // SIZE X2 - font 2x higher, normal wide
-  // --------------------------------------
+  // -----------------------------------------
+  // SIZE X2 - bigger font 2x higher, 1x wide
+  // -----------------------------------------
   } else if (size == X2) {
     // loop through 5 bytes
     while (idxCol--) {
@@ -648,10 +648,10 @@ char DrawChar(char character, uint16_t color, ESizes size)
       while (idxRow--) {
         // check if bit set
         if ((letter & 0x80) == 0x80) {
-          // draw first left up pixel; 
-          // (idxRow << 1) - 2x multiplied 
+          // draw first up pixel; 
+          // note: (idxRow << 1) - 2x multiplied 
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1), color);
-          // draw second left down pixel
+          // draw second down pixel
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1) + 1, color);
         }
         // byte move to left / next bit
@@ -660,9 +660,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
-  // --------------------------------------
-  // SIZE X3 - font 2x higher, 2x wider
-  // --------------------------------------
+  // ------------------------------------------------
+  // SIZE X3 - the biggest font: 2x higher, 2x wider
+  // ------------------------------------------------
   } else if (size == X3) {
     // loop through 5 bytes
     while (idxCol--) {
@@ -673,7 +673,7 @@ char DrawChar(char character, uint16_t color, ESizes size)
         // check if bit set
         if ((letter & 0x80) == 0x80) {
           // draw first left up pixel; 
-          // (idxRow << 1) - 2x multiplied 
+          // note: (idxRow << 1) - 2x multiplied 
           DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1), color);
           // draw second left down pixel
           DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1) + 1, color);
@@ -689,7 +689,6 @@ char DrawChar(char character, uint16_t color, ESizes size)
       idxRow = CHARS_ROWS_LEN;
     }
   }
-
   // return exit
   return 0;
 }
@@ -869,7 +868,8 @@ void ClearScreen(uint16_t color)
 {
   // set whole window
   SetWindow(0, SIZE_X, 0, SIZE_Y);
-  // draw individual pixels
+  // draw individual pixels 
+  // CACHE_SIZE_MEM = SIZE_X * SIZE_Y
   SendColor565(color, CACHE_SIZE_MEM);
 }
 

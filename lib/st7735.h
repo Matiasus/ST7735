@@ -128,13 +128,14 @@
 
   /** @enum Font sizes */
   typedef enum {
-    // 1x high & 1x wide size
+    // normal font size: 1x high & 1x wide
     X1 = 0x00,
-    // 2x high & 1x wide size
+    // bigger font size: 2x higher & 1x wide
     X2 = 0x01,
-    // 2x high & 2x wider size
-    // 0x0A is set because need to offset 5 position to right
-    //      when draw the characters of string 
+    // the biggest font size: font 2x higher & 2x wider
+    // 0x0A is set cause offset 5 position to right only for
+    //      this case and no offset for previous cases X1, X2
+    //      when draw the characters of string in DrawString()
     X3 = 0x0A
   } ESizes;
 
