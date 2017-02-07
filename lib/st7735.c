@@ -353,7 +353,7 @@ void St7735Commands(const uint8_t *commands)
   uint8_t numOfCommands;
   uint8_t numOfArguments;
 
-  // number of commnads
+  // number of commands
   numOfCommands = pgm_read_byte(commands++);
   
   // loop through whole command list
