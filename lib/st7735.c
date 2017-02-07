@@ -494,7 +494,7 @@ uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
   Data8BitsSend(0x00);
   // end end Row
   Data8BitsSend(eRow);
-  // column address set
+  // partial area on
   CommandSend(PTLON);
   // success
   return 1;
