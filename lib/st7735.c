@@ -353,7 +353,7 @@ void St7735Commands(const uint8_t *commands)
   uint8_t numOfCommands;
   uint8_t numOfArguments;
 
-  // number of commnads
+  // number of commands
   numOfCommands = pgm_read_byte(commands++);
   
   // loop through whole command list
@@ -494,7 +494,7 @@ uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
   Data8BitsSend(0x00);
   // end end Row
   Data8BitsSend(eRow);
-  // column address set
+  // partial area on
   CommandSend(PTLON);
   // success
   return 1;
