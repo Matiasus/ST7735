@@ -770,10 +770,10 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
         // update y1
         y1 += trace_y;
         // update determinant
-        D -= 2*delta_x;    
+        D -= (delta_x << 1);    
       }
       // update deteminant
-      D += 2*delta_y;
+      D += (delta_y << 1);
       // draw next pixel
       DrawPixel(x1, y1, color);
     }
@@ -792,10 +792,10 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
         // update y1
         x1 += trace_x;
         // update determinant
-        D += 2*delta_y;    
+        D += (delta_y << 1);    
       }
       // update deteminant
-      D -= 2*delta_x;
+      D -= (delta_x << 1);
       // draw next pixel
       DrawPixel(x1, y1, color);
     }
