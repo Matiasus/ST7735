@@ -5,7 +5,7 @@
 <p>C library for driving 1.8 TFT LCD display with controller st7735 through SPI's Atmega16</p>
 
 <h2>Demonstration</h2>
-<p><img src="st7735.jpg" /></p>
+<p><img src="img/st7735.jpg" /></p>
 
 <h2>Inspiration & Acknowledgement</h2>
 <p>
