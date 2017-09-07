@@ -297,7 +297,6 @@
    */
   void DrawLineVertical(uint8_t, uint8_t, uint8_t, uint16_t);
 
-
   /**
    * @description     Clear screen
    *
