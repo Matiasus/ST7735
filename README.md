@@ -1,7 +1,7 @@
-# 1.8 TFT LCD 162x132 with ST7735 driver
+# 1.8 TFT LCD
 
 ## C library AVR Atmega16 
-C library for driving 1.8 TFT LCD display with controller st7735 through SPI's Atmega16.
+C library for driving 1.8 TFT LCD display with controller ST7735 through SPI's Atmega16.
 
 ## Demonstration
 ![Demonstration](img/st7735.jpg)
