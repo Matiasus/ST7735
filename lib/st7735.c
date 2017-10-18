@@ -335,6 +335,8 @@ void St7735Init(void)
   DDR  |= (1 << ST7735_BL);
   // set high level on Backlight
   PORT |= (1 << ST7735_BL);
+  // hardware reset
+  HardwareReset();
   // init spi
   SpiInit();
   // load list of commands
