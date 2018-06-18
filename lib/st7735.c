@@ -821,7 +821,7 @@ void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
   // check if start is > as end  
   if (xs > xe) {
     // temporary safe
-    temp = xs;
+    temp = xe;
     // start change for end
     xe = xs;
     // end change for start
@@ -848,7 +848,7 @@ void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
   // check if start is > as end
   if (ys > ye) {
     // temporary safe
-    temp = ys;
+    temp = ye;
     // start change for end
     ye = ys;
     // end change for start
