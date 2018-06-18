@@ -758,7 +758,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   // Bresenham condition for m < 1 (dy < dx)
   if (delta_y < delta_x) {
     // calculate determinant
-    D = (1 << delta_y) - delta_x;
+    D = (delta_y << 1) - delta_x;
     // draw first pixel
     DrawPixel(x1, y1, color);
     // check if x1 equal x2
@@ -780,7 +780,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
-    D = delta_y - (1 << delta_x);
+    D = delta_y - (delta_x << 1);
     // draw first pixel
     DrawPixel(x1, y1, color);
     // check if y2 equal y1
