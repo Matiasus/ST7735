@@ -8,7 +8,17 @@ C library is aimed for driving 1.8 TFT LCD display with st7735 driver through SP
 
 ## Usage
 Prior defined for MCU Atmega16 / Atmega8. Need to be carefull with definition of SPI ports.
-
+- [Atmega16](https://www.gme.cz/data/attachments/dsh.958-112.1.pdf)
+  - SS - PB4
+  - MOSI - PB5
+  - MISO - PB6
+  - SCK - PB7
+- [Atmega8](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf)
+  - SS - PB2
+  - MOSI - PB3
+  - MISO - PB4
+  - SCK - PB5
+  
 ## Demonstration
 <img src="img/st7735.jpg" />
 
