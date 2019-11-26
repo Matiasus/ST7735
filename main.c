@@ -40,7 +40,7 @@ int main(void)
   // set text position
   SetPosition(41, 10);
   // draw text
-  DrawString("ST7735 DRIVER", 0x007b);
+  DrawString("ST7735 DRIVER", 0x007b, X1);
   // set text position
   SetPosition(53, 26);
   // draw text
