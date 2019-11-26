@@ -1,14 +1,28 @@
-# 1.8 TFT LCD
+# LCD 162x132
 
-## C library AVR Atmega16 
-C library for driving 1.8 TFT LCD display with controller ST7735 through SPI's Atmega16.
+## ST7735 Description
+Detailed information are descripted in [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf).
 
+## Library
+C library is aimed for driving 1.8 TFT LCD display with st7735 driver through SPI's Atmega16 / Atmega8.
+
+## Usage
+Prior defined for MCU Atmega16 / Atmega8. Need to be carefull with definition of SPI ports.
+- [Atmega16](https://www.gme.cz/data/attachments/dsh.958-112.1.pdf)
+  - SS - PB4
+  - MOSI - PB5
+  - MISO - PB6
+  - SCK - PB7
+- [Atmega8](https://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-2486-8-bit-AVR-microcontroller-ATmega8_L_datasheet.pdf)
+  - SS - PB2
+  - MOSI - PB3
+  - MISO - PB4
+  - SCK - PB5
+  
 ## Demonstration
-![Demonstration](img/st7735.jpg)
+<img src="img/st7735.jpg" />
 
-## Inspiration & Acknowledgement
-- [ST7735 datsheet](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf)
-- [Example library](https://github.com/adafruit/Adafruit-ST7735-Library)
-- [Helpful tutorial](http://w8bh.net/avr/AvrTFT.pdf)
-
-
+## Links
+- [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf)
+- [Adafuit TFT](https://github.com/adafruit/Adafruit-ST7735-Library)
+- [AVR TFT](http://w8bh.net/avr/AvrTFT.pdf)
