@@ -1,7 +1,7 @@
 # LCD 162x132
 
 ## ST7735 Description
-Detailed information are descripted in [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf).
+Detailed information are described in [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf).
 
 ## Library
 C library is aimed for driving 1.8 TFT LCD display with st7735 driver through SPI's Atmega16 / Atmega8.
