@@ -4,7 +4,7 @@
 Detailed information are described in [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf).
 
 ## Library
-C library is aimed for driving [ST7735 1.8 TFT LCD display](img/st7735.jpg) through SPI's Atmega16 / Atmega8.
+C library is aimed for driving [ST7735 1.8 TFT LCD display](#demonstration) through SPI's Atmega16 / Atmega8.
 
 ### Usage
 Prior defined for MCU Atmega16 / Atmega8. Need to be carefull with SPI ports definition.
