@@ -23,158 +23,60 @@
 #include <avr/io.h>
 #include <avr/pgmspace.h>
 #include <util/delay.h>
-#include "spi.h"
 #include "st7735.h"
 
 /** @array Init command */
 const uint8_t INIT_ST7735B[] PROGMEM = {
-    // 11 commands in list:
-    11,
-    // Software reset
-    //  no arguments
-    //  delay
-    SWRESET, 
-        DELAY,  
-          200,  // 200 ms delay
-    // Out of sleep mode, 
-    //  no arguments, 
-    //  delay
-    SLPOUT,
-        DELAY,  
-          200,  // 200 ms delay
-    // Set color mode, 
-    //  1 argument
-    //  delay
-    COLMOD, 
-      1+DELAY,  
-         0x05,  // 16-bit color
-           10,  // 10 ms
-    // Frame rate control, 
-    //  3 arguments
-    //  delay
-    FRMCTR1,
-      3+DELAY,  
-         0x00,  // fastest refresh
-         0x06,  // 6 lines front porch
-         0x03,  // 3 lines back porch
-           10,  // 10 ms delay
-    // Inversion mode off
-     INVOFF,
-        DELAY,  
-           10,
-    // Memory access ctrl (directions), 
-    //  1 argument
-    //  no delay
-     MADCTL, 
-            1,
-         // D7  D6  D5  D4  D3  D2  D1  D0
-         // MY  MX  MV  ML RGB  MH   -   -
-         // ------------------------------
-         // ------------------------------
-         // MV  MX  MY -> {MV (row / column exchange) MX (column address order), MY (row address order)}
-         // ------------------------------
-         //  0   0   0 -> begin left-up corner, end right-down corner 
-         //               left-right (normal view) 
-         //  0   0   1 -> begin left-down corner, end right-up corner 
-         //               left-right (Y-mirror)
-         //  0   1   0 -> begin right-up corner, end left-down corner 
-         //               right-left (X-mirror)
-         //  0   1   1 -> begin right-down corner, end left-up corner
-         //               right-left (X-mirror, Y-mirror)
-         //  1   0   0 -> begin left-up corner, end right-down corner
-         //               up-down (X-Y exchange)  
-         //  1   0   1 -> begin left-down corner, end right-up corner
-         //               down-up (X-Y exchange, Y-mirror)
-         //  1   1   0 -> begin right-up corner, end left-down corner 
-         //               up-down (X-Y exchange, X-mirror)  
-         //  1   1   1 -> begin right-down corner, end left-up corner
-         //               down-up (X-Y exchange, X-mirror, Y-mirror)
-         // ------------------------------
-         //  ML: vertical refresh order 
-         //      0 -> refresh top to bottom 
-         //      1 -> refresh bottom to top
-         // ------------------------------
-         // RGB: filter panel
-         //      0 -> RGB 
-         //      1 -> BGR        
-         // ------------------------------ 
-         //  MH: horizontal refresh order 
-         //      0 -> refresh left to right 
-         //      1 -> refresh right to left
-         // 0xA0 = 1010 0000  
-         0xA0,
-    // Display settings #5, 
-    //  2 arguments 
-    //  no delay
-    DISSET5, 
-            2,  
-         0x15,  // 1 clk cycle nonoverlap, 2 cycle gate
-                // rise, 3 cycle osc equalize
-         0x02,  // Fix on VTL
-    // Display inversion control, 
-    //  1 argument
-    //  no delay
-     INVCTR,
-            1,  
-          0x0,  //     Line inversion
-    // Magical unicorn dust, 
-    //  16 arguments
-    //  no delay
-    GMCTRP1,
-           16,
-         0x09, 
-         0x16, 
-         0x09, 
-         0x20,
-         0x21, 
-         0x1B,
-         0x13,
-         0x19,
-         0x17,
-         0x15,
-         0x1E,
-         0x2B,
-         0x04,
-         0x05,
-         0x02,
-         0x0E,
-    // Sparkles and rainbows 
-    //  16 arguments 
-    //  delay
-    GMCTRN1,
-     16+DELAY,  
-         0x0B,
-         0x14,
-         0x08,
-         0x1E, 
-         0x22,
-         0x1D,
-         0x18,
-         0x1E,
-         0x1B,
-         0x1A,
-         0x24,  
-         0x2B,
-         0x06,
-         0x06,
-         0x02,
-         0x0F,
-           10,  // 10 ms delay
-    // Normal display on
-    //  no arguments
-    //  delay
-      NORON, 
-        DELAY, 
-           10,  // 10 ms delay
-/*
-    // Main screen turn on
-    //  no arguments
-    //  delay
-     DISPON,
-        DELAY,  
-          200   // 200 ms delay
-*/
+  // number of initializers
+  5,
+  // ---------------------------------------
+  // Software reset - no arguments,  delay
+  0, 150, SWRESET,
+  // Out of sleep mode, no arguments, delay
+  0, 200, SLPOUT,  
+  // Set color mode, 1 argument delay
+  1,  10, COLMOD, 0x05,
+  // D7  D6  D5  D4  D3  D2  D1  D0
+  // MY  MX  MV  ML RGB  MH   -   -
+  // ------------------------------
+  // ------------------------------
+  // MV  MX  MY -> {MV (row / column exchange) MX (column address order), MY (row address order)}
+  // ------------------------------
+  //  0   0   0 -> begin left-up corner, end right-down corner 
+  //               left-right (normal view) 
+  //  0   0   1 -> begin left-down corner, end right-up corner 
+  //               left-right (Y-mirror)
+  //  0   1   0 -> begin right-up corner, end left-down corner 
+  //               right-left (X-mirror)
+  //  0   1   1 -> begin right-down corner, end left-up corner
+  //               right-left (X-mirror, Y-mirror)
+  //  1   0   0 -> begin left-up corner, end right-down corner
+  //               up-down (X-Y exchange)  
+  //  1   0   1 -> begin left-down corner, end right-up corner
+  //               down-up (X-Y exchange, Y-mirror)
+  //  1   1   0 -> begin right-up corner, end left-down corner 
+  //               up-down (X-Y exchange, X-mirror)  
+  //  1   1   1 -> begin right-down corner, end left-up corner
+  //               down-up (X-Y exchange, X-mirror, Y-mirror)
+  // ------------------------------
+  //  ML: vertical refresh order 
+  //      0 -> refresh top to bottom 
+  //      1 -> refresh bottom to top
+  // ------------------------------
+  // RGB: filter panel
+  //      0 -> RGB 
+  //      1 -> BGR        
+  // ------------------------------ 
+  //  MH: horizontal refresh order 
+  //      0 -> refresh left to right 
+  //      1 -> refresh right to left
+  // 0xA0 = 1010 0000
+  1,   0, MADCTL, 0xA0,
+  // Main screen turn on
+  0, 200, DISPON 
+  // ---------------------------------------
 };
+
 /** @array Charset */
 const uint8_t CHARACTERS[][5] PROGMEM = {
   { 0x00, 0x00, 0x00, 0x00, 0x00 }, // 20 space
@@ -281,10 +183,10 @@ int cacheMemIndexRow = 0;
 int cacheMemIndexCol = 0;
 
 /**
- * @description Hardware Reset Impulse - minimal time required 120 ms
+ * @desc    Hardware Reset Impulse - minimal time required 120 ms
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void HardwareReset(void)
 {
@@ -303,10 +205,10 @@ void HardwareReset(void)
 }
 
 /**
- * @description Initialise SPI communication
+ * @desc    Initialise SPI communication
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void SpiInit(void)
 {
@@ -324,10 +226,10 @@ void SpiInit(void)
 }
 
 /**
- * @description Initialise St7735 communication
+ * @desc    Initialise St7735 communication
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void St7735Init(void)
 {
@@ -335,59 +237,55 @@ void St7735Init(void)
   DDR  |= (1 << ST7735_BL);
   // set high level on Backlight
   PORT |= (1 << ST7735_BL);
-  // hardware reset
-  HardwareReset();
   // init spi
   SpiInit();
+  // reset
+  HardwareReset();
   // load list of commands
   St7735Commands(INIT_ST7735B);
 }
 
 /**
- * @description Send commands
+ * @desc    Send commands
  *
- * @param const uint8_t *
- * @return void
+ * @param   const uint8_t *
+ * @return  void
  */
-void St7735Commands(const uint8_t *commands)
+void St7735Commands(const uint8_t *initializers)
 {
-  uint8_t milliseconds;
-  uint8_t numOfCommands;
-  uint8_t numOfArguments;
+  uint8_t args;
+  uint8_t cmnd;
+  uint8_t time;
+  uint8_t loop = pgm_read_byte(initializers++);
 
-  // number of commands
-  numOfCommands = pgm_read_byte(commands++);
-  
-  // loop through whole command list
-  while (numOfCommands--) {
+  // loop through whole initializer list
+  while (loop--) {
+
+    // 1st arg - number of command arguments
+    args = pgm_read_byte(initializers++);
+    // 2nd arg - delay time
+    time = pgm_read_byte(initializers++);
+    // 3th arg - command
+    cmnd = pgm_read_byte(initializers++);
+
     // send command
-    CommandSend(pgm_read_byte(commands++));
-    // read number of arguments
-    numOfArguments = pgm_read_byte(commands++);
-    // check if delay set
-    milliseconds = numOfArguments & DELAY;
-    // remove delay flag
-    numOfArguments &= ~DELAY;
-    // loop through number of arguments
-    while (numOfArguments--) {
-      // send arguments
-      Data8BitsSend(pgm_read_byte(commands++));
+    CommandSend(cmnd);
+    // send arguments
+    while (args--) {
+      // send argument
+      Data8BitsSend(pgm_read_byte(initializers++));
     }
-    // check if delay set
-    if (milliseconds) {
-      // value in milliseconds
-      milliseconds = pgm_read_byte(commands++);
-      // delay
-      DelayMs(milliseconds);
-    }
+
+    // delay
+    DelayMs(time);
   }
 }
 
 /**
- * @description Command send
+ * @desc    Command send
  *
- * @param uint8_t command
- * @return void
+ * @param   uint8_t command
+ * @return  void
  */
 uint8_t CommandSend(uint8_t data)
 {
@@ -406,10 +304,10 @@ uint8_t CommandSend(uint8_t data)
 }
 
 /**
- * @description 8 bits data send
+ * @desc    8 bits data send
  *
- * @param uint8_t 
- * @return void
+ * @param   uint8_t 
+ * @return  void
  */
 uint8_t Data8BitsSend(uint8_t data)
 {
@@ -428,10 +326,10 @@ uint8_t Data8BitsSend(uint8_t data)
 }
 
 /**
- * @description 16 bits data send
+ * @desc    16 bits data send
  *
- * @param uint16_t 
- * @return void
+ * @param   uint16_t 
+ * @return  void
  */
 uint8_t Data16BitsSend(uint16_t data)
 {
@@ -454,11 +352,11 @@ uint8_t Data16BitsSend(uint16_t data)
 }
 
 /**
- * Write color pixels
+ * @desc    Write color pixels
  *
- * @param uint16_t color
- * @param uint16_t counter
- * @return void
+ * @param   uint16_t color
+ * @param   uint16_t counter
+ * @return  void
  */
 void SendColor565(uint16_t color, uint16_t count)
 {
@@ -472,11 +370,11 @@ void SendColor565(uint16_t color, uint16_t count)
 }
 
 /**
- * @description Set Partial Area / Window
+ * @desc    Set Partial Area / Window
  *
- * @param uint8_t start row
- * @param uint8_t end row
- * @return void
+ * @param   uint8_t start row
+ * @param   uint8_t end row
+ * @return  void
  */
 uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
 {
@@ -496,20 +394,20 @@ uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
   Data8BitsSend(0x00);
   // end end Row
   Data8BitsSend(eRow);
-  // partial area on
+  // column address set
   CommandSend(PTLON);
   // success
   return 1;
 }
 
 /**
- * @description Set Window
+ * @desc    Set Window
  *
- * @param uint8_t
- * @param uint8_t
- * @param uint8_t
- * @param uint8_t
- * @return void
+ * @param   uint8_t
+ * @param   uint8_t
+ * @param   uint8_t
+ * @param   uint8_t
+ * @return  void
  */
 uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
 {
@@ -546,26 +444,26 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
 }
 
 /**
- * @description Set text position x, y
+ * @desc    Set text position x, y
  *
- * @param uint8_t x - position
- * @param uint8_t y - position
- * @return void
+ * @param   uint8_t x - position
+ * @param   uint8_t y - position
+ * @return  void
  */
 char SetPosition(uint8_t x, uint8_t y)
 {
   // check if coordinates is out of range
-  if ((x > MAX_X - (CHARS_COLS_LEN + 1)) &&
-      (y > MAX_Y - (CHARS_ROWS_LEN))) {
+  if ((x > MAX_X-6) &&
+      (y > MAX_Y-8)) {
     // out of range
     return 0;
   }
   // check if x coordinates is out of range
   // and y is not out of range go to next line
-  if ((x > MAX_X - (CHARS_COLS_LEN + 1)) &&
-      (y < MAX_Y - (CHARS_ROWS_LEN))) {
+  if ((x > MAX_X-6) &&
+      (y < MAX_Y-8)) {
     // change position y
-    cacheMemIndexRow = y + CHARS_ROWS_LEN;
+    cacheMemIndexRow = y + 8;
     // change position x
     cacheMemIndexCol = x;
   } else {
@@ -579,12 +477,12 @@ char SetPosition(uint8_t x, uint8_t y)
 }
 
 /**
- * @description Draw pixel
+ * @desc    Draw pixel
  *
- * @param uint8_t   x position / 0 <= cols <= MAX_X-1
- * @param uint8_t   y position / 0 <= rows <= MAX_Y-1
- * @param uint16_t  color
- * @return Null
+ * @param   uint8_t   x position / 0 <= cols <= MAX_X-1
+ * @param   uint8_t   y position / 0 <= rows <= MAX_Y-1
+ * @param   uint16_t  color
+ * @return  void
  */
 void DrawPixel(uint8_t x, uint8_t y, uint16_t color)
 {
@@ -595,12 +493,12 @@ void DrawPixel(uint8_t x, uint8_t y, uint16_t color)
 }
 
 /**
- * @description     Draw character 2x larger
+ * @desc    Draw character 2x larger
  *
- * @param char      character
- * @param uint16_t  color
- * @param Esizes    see enum sizes in st7735.h
- * @return void
+ * @param   char      character
+ * @param   uint16_t  color
+ * @param   Esizes    see enum sizes in st7735.h
+ * @return  void
  */
 char DrawChar(char character, uint16_t color, ESizes size)
 {
@@ -617,9 +515,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
   // last row of character array - 8 rows / bits
   idxRow = CHARS_ROWS_LEN;
 
-  // ----------------------------------------
-  // SIZE X1 - normal font: 1x high, 1x wide
-  // ----------------------------------------
+  // --------------------------------------
+  // SIZE X1 - normal font 1x high, 1x wide
+  // --------------------------------------
   if (size == X1) {  
     // loop through 5 bytes
     while (idxCol--) {
@@ -638,9 +536,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
-  // -----------------------------------------
-  // SIZE X2 - bigger font 2x higher, 1x wide
-  // -----------------------------------------
+  // --------------------------------------
+  // SIZE X2 - font 2x higher, normal wide
+  // --------------------------------------
   } else if (size == X2) {
     // loop through 5 bytes
     while (idxCol--) {
@@ -650,10 +548,10 @@ char DrawChar(char character, uint16_t color, ESizes size)
       while (idxRow--) {
         // check if bit set
         if ((letter & 0x80) == 0x80) {
-          // draw first up pixel; 
-          // note: (idxRow << 1) - 2x multiplied 
+          // draw first left up pixel; 
+          // (idxRow << 1) - 2x multiplied 
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1), color);
-          // draw second down pixel
+          // draw second left down pixel
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1) + 1, color);
         }
         // byte move to left / next bit
@@ -662,9 +560,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
-  // ------------------------------------------------
-  // SIZE X3 - the biggest font: 2x higher, 2x wider
-  // ------------------------------------------------
+  // --------------------------------------
+  // SIZE X3 - font 2x higher, 2x wider
+  // --------------------------------------
   } else if (size == X3) {
     // loop through 5 bytes
     while (idxCol--) {
@@ -675,7 +573,7 @@ char DrawChar(char character, uint16_t color, ESizes size)
         // check if bit set
         if ((letter & 0x80) == 0x80) {
           // draw first left up pixel; 
-          // note: (idxRow << 1) - 2x multiplied 
+          // (idxRow << 1) - 2x multiplied 
           DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1), color);
           // draw second left down pixel
           DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1) + 1, color);
@@ -691,19 +589,20 @@ char DrawChar(char character, uint16_t color, ESizes size)
       idxRow = CHARS_ROWS_LEN;
     }
   }
+
   // return exit
   return 0;
 }
 
 /**
- * @description     Draw string
+ * @desc    Draw string
  *
- * @param char*     string 
- * @param uint16_t  color
- * @param Esizes    see enum sizes in st7735.h
- * @return void
+ * @param   char*     string 
+ * @param   uint16_t  color
+ * @param   Esizes    see enum sizes in st7735.h
+ * @return  void
  */
-void DrawString(char *str, uint16_t color, ESizes size)
+void DrawString(volatile const char *str, uint16_t color, ESizes size)
 {
   // variables
   uint8_t i = 0;
@@ -717,15 +616,15 @@ void DrawString(char *str, uint16_t color, ESizes size)
 }
 
 /**
- * @description Draw line by Bresenham algoritm
- * @surce       https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
+ * @desc    Draw line by Bresenham algoritm
+ * @surce   https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
  *  
- * @param uint8_t   x start position / 0 <= cols <= MAX_X-1
- * @param uint8_t   x end position   / 0 <= cols <= MAX_X-1
- * @param uint8_t   y start position / 0 <= rows <= MAX_Y-1 
- * @param uint8_t   y end position   / 0 <= rows <= MAX_Y-1
- * @param uint16_t  color
- * @return void
+ * @param   uint8_t   x start position / 0 <= cols <= MAX_X-1
+ * @param   uint8_t   x end position   / 0 <= cols <= MAX_X-1
+ * @param   uint8_t   y start position / 0 <= rows <= MAX_Y-1 
+ * @param   uint8_t   y end position   / 0 <= rows <= MAX_Y-1
+ * @param   uint16_t  color
+ * @return  void
  */
 char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
 {
@@ -772,10 +671,10 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
         // update y1
         y1 += trace_y;
         // update determinant
-        D -= (delta_x << 1);    
+        D -= 2*delta_x;    
       }
       // update deteminant
-      D += (delta_y << 1);
+      D += 2*delta_y;
       // draw next pixel
       DrawPixel(x1, y1, color);
     }
@@ -794,10 +693,10 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
         // update y1
         x1 += trace_x;
         // update determinant
-        D += (delta_y << 1);    
+        D += 2*delta_y;    
       }
       // update deteminant
-      D -= (delta_x << 1);
+      D -= 2*delta_x;
       // draw next pixel
       DrawPixel(x1, y1, color);
     }
@@ -807,12 +706,12 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
 }
 
 /**
- * @description Fast draw line horizontal
+ * @desc    Fast draw line horizontal
  *
- * @param uint8_t xs - start position
- * @param uint8_t xe - end position
- * @param uint8_t y - position
- * @param uint16_t  color
+ * @param   uint8_t xs - start position
+ * @param   uint8_t xe - end position
+ * @param   uint8_t y - position
+ * @param   uint16_t  color
  * @return void
  */
 void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
@@ -821,7 +720,7 @@ void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
   // check if start is > as end  
   if (xs > xe) {
     // temporary safe
-    temp = xe;
+    temp = xs;
     // start change for end
     xe = xs;
     // end change for start
@@ -834,13 +733,13 @@ void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
 }
 
 /**
- * @description Fast draw line vertical
+ * @desc    Fast draw line vertical
  *
- * @param uint8_t x - position
- * @param uint8_t ys - start position
- * @param uint8_t ye - end position
- * @param uint16_t  color
- * @return void
+ * @param   uint8_t x - position
+ * @param   uint8_t ys - start position
+ * @param   uint8_t ye - end position
+ * @param   uint16_t  color
+ * @return  void
  */
 void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
 {
@@ -848,7 +747,7 @@ void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
   // check if start is > as end
   if (ys > ye) {
     // temporary safe
-    temp = ye;
+    temp = ys;
     // start change for end
     ye = ys;
     // end change for start
@@ -861,25 +760,61 @@ void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
 }
 
 /**
- * @description Clear screen
+ * @desc    Draw rectangle
  *
- * @param uint16_t color
- * @return void
+ * @param   uint8_t   x start position
+ * @param   uint8_t   x end position
+ * @param   uint8_t   y start position
+ * @param   uint8_t   y end position
+ * @param   uint16_t  color
+ * @return  void
+ */
+void DrawRectangle(uint8_t xs, uint8_t xe, uint8_t ys, uint8_t ye, uint16_t color)
+{
+  uint8_t temp;
+  // check if start is > as end  
+  if (xs > xe) {
+    // temporary safe
+    temp = xe;
+    // start change for end
+    xe = xs;
+    // end change for start
+    xs = temp;
+  }
+  // check if start is > as end
+  if (ys > ye) {
+    // temporary safe
+    temp = ye;
+    // start change for end
+    ye = ys;
+    // end change for start
+    ys = temp;
+  }
+  // set window
+  SetWindow(xs, xe, ys, ye);
+  // send color
+  SendColor565(color, (xe-xs+1)*(ye-ys+1));  
+}
+
+/**
+ * @desc    Clear screen
+ *
+ * @param   uint16_t color
+ * @return  void
  */
 void ClearScreen(uint16_t color)
 {
   // set whole window
   SetWindow(0, SIZE_X, 0, SIZE_Y);
-  // draw individual pixels 
-  // CACHE_SIZE_MEM = SIZE_X * SIZE_Y
+  // draw individual pixels
   SendColor565(color, CACHE_SIZE_MEM);
 }
 
 /**
- * @description Update screen
+ * @desc    Update screen
  *
- * @param void
- * @return void
+ * @param   void
+ * @return  void
  */
 void UpdateScreen(void)
 {
@@ -888,10 +823,10 @@ void UpdateScreen(void)
 }
 
 /**
- * @description Delay
+ * @desc    Delay
  *
- * @param uint8_t time in milliseconds
- * @return void
+ * @param   uint8_t time in milliseconds
+ * @return  void
  */
 void DelayMs(uint8_t time)
 {
