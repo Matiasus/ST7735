@@ -1,13 +1,13 @@
 /** 
  * LCD driver for controller st7735.c / 1.8 TFT DISPLAY /
  *
- * Copyright (C) 2016 Marian Hrinko.
+ * Copyright (C) 2020 Marian Hrinko.
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
  * @author      Marian Hrinko
- * @datum       08.01.2016
+ * @datum       29.07.2020
  * @file        st7735.c
- * @tested      AVR Atmega16
+ * @tested      AVR Atmega8
  * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
  *              https://github.com/adafruit/Adafruit-ST7735-Library
  *              http://w8bh.net/avr/AvrTFT.pdf
@@ -352,24 +352,6 @@ uint8_t Data16BitsSend(uint16_t data)
 }
 
 /**
- * @desc    Write color pixels
- *
- * @param   uint16_t color
- * @param   uint16_t counter
- * @return  void
- */
-void SendColor565(uint16_t color, uint16_t count)
-{
-  // access to RAM
-  CommandSend(RAMWR);
-  // counter
-  while (count--) {
-    // write color
-    Data16BitsSend(color);
-  }
-}
-
-/**
  * @desc    Set Partial Area / Window
  *
  * @param   uint8_t start row
@@ -417,63 +399,43 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
       (y0 > y1)     ||
       (y1 > SIZE_Y)) { 
     // out of range
-    return 0;
+    return ST7735_ERROR;
   }  
   // column address set
   CommandSend(CASET);
-  // start x position
-  Data8BitsSend(0x00);
-  // start x position
-  Data8BitsSend(x0);
-  // start x position
-  Data8BitsSend(0x00);
-  // end x position
-  Data8BitsSend(x1);
+  // send start x position
+  Data16BitsSend(0x0000 | x0);
+  // send end x position
+  Data16BitsSend(0x0000 | x1);
+
   // row address set
   CommandSend(RASET);
-  // start x position
-  Data8BitsSend(0x00);
-  // start y position
-  Data8BitsSend(y0);
-  // start x position
-  Data8BitsSend(0x00);
-  // end y position
-  Data8BitsSend(y1);
+  // send start y position
+  Data16BitsSend(0x0000 | y0);
+  // send end y position
+  Data16BitsSend(0x0000 | y1);
+
   // success
-  return 1;
+  return ST7735_SUCCESS;
 }
 
 /**
- * @desc    Set text position x, y
+ * @desc    Write color pixels
  *
- * @param   uint8_t x - position
- * @param   uint8_t y - position
+ * @param   uint16_t color
+ * @param   uint16_t counter
+ *
  * @return  void
  */
-char SetPosition(uint8_t x, uint8_t y)
+void SendColor565(uint16_t color, uint16_t count)
 {
-  // check if coordinates is out of range
-  if ((x > MAX_X-6) &&
-      (y > MAX_Y-8)) {
-    // out of range
-    return 0;
+  // access to RAM
+  CommandSend(RAMWR);
+  // counter
+  while (count--) {
+    // write color
+    Data16BitsSend(color);
   }
-  // check if x coordinates is out of range
-  // and y is not out of range go to next line
-  if ((x > MAX_X-6) &&
-      (y < MAX_Y-8)) {
-    // change position y
-    cacheMemIndexRow = y + 8;
-    // change position x
-    cacheMemIndexCol = x;
-  } else {
-    // set position y 
-    cacheMemIndexRow = y;
-    // set position x
-    cacheMemIndexCol = x;
-  }
-  // success
-  return 1;
 }
 
 /**
@@ -519,23 +481,22 @@ char DrawChar(char character, uint16_t color, ESizes size)
   // SIZE X1 - normal font 1x high, 1x wide
   // --------------------------------------
   if (size == X1) {  
-    // loop through 5 bytes
+    // loop through 5 bits
     while (idxCol--) {
       // read from ROM memory 
       letter = pgm_read_byte(&CHARACTERS[character - 32][idxCol]);
       // loop through 8 bits
       while (idxRow--) {
         // check if bit set
-        if ((letter & 0x80) == 0x80) {
+        if (letter & (1 << idxRow)) {
           // draw pixel 
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + idxRow, color);
         }
-        // byte move to left / next bit
-        letter = letter << 1;
       }
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
+    
   // --------------------------------------
   // SIZE X2 - font 2x higher, normal wide
   // --------------------------------------
@@ -547,15 +508,13 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // loop through 8 bits
       while (idxRow--) {
         // check if bit set
-        if ((letter & 0x80) == 0x80) {
+        if (letter & (1 << idxRow)) {
           // draw first left up pixel; 
           // (idxRow << 1) - 2x multiplied 
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1), color);
           // draw second left down pixel
           DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1) + 1, color);
         }
-        // byte move to left / next bit
-        letter = letter << 1;
       }
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
@@ -571,7 +530,7 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // loop through 8 bits
       while (idxRow--) {
         // check if bit set
-        if ((letter & 0x80) == 0x80) {
+        if (letter & (1 << idxRow)) {
           // draw first left up pixel; 
           // (idxRow << 1) - 2x multiplied 
           DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1), color);
@@ -582,8 +541,6 @@ char DrawChar(char character, uint16_t color, ESizes size)
           // draw fourth right down pixel
           DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1) + 1, color);
         }
-        // byte move to left / next bit
-        letter = letter << 1;
       }
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
@@ -591,7 +548,58 @@ char DrawChar(char character, uint16_t color, ESizes size)
   }
 
   // return exit
-  return 0;
+  return ST7735_SUCCESS;
+}
+
+/**
+ * @desc    Set text position x, y
+ *
+ * @param   uint8_t x - position
+ * @param   uint8_t y - position
+ *
+ * @return  void
+ */
+char SetPosition(uint8_t x, uint8_t y)
+{
+  // check if coordinates is out of range
+  if ((x > MAX_X) && (y > MAX_Y)) {
+    // error
+    return ST7735_ERROR;
+  }
+  // set position y 
+  cacheMemIndexRow = y;
+  // set position x
+  cacheMemIndexCol = x;
+  // success
+  return ST7735_SUCCESS;
+}
+
+/**
+ * @desc    Check text position x, y
+ *
+ * @param   uint8_t x - position
+ * @param   uint8_t y - position
+ *
+ * @return  char
+ */
+char CheckPosition(uint8_t x, uint8_t y, ESizes size)
+{
+  // check if coordinates is out of range
+  if ((x > MAX_X) && (y > MAX_Y)) {
+    // out of range
+    return ST7735_ERROR;
+  }
+
+  // check if coordinates is out of range
+  if ((x > MAX_X) && (y <= MAX_Y)) {
+    // set position y
+    cacheMemIndexRow = cacheMemIndexRow + (CHARS_ROWS_LEN + 1) * (size >> 4) + 2;
+    // set position x
+    cacheMemIndexCol = 2;
+  }
+
+  // success
+  return ST7735_SUCCESS;
 }
 
 /**
@@ -605,13 +613,26 @@ char DrawChar(char character, uint16_t color, ESizes size)
 void DrawString(volatile const char *str, uint16_t color, ESizes size)
 {
   // variables
-  uint8_t i = 0;
+  unsigned int i = 0;
+  unsigned char check;
+  unsigned char max_x_pos;
+  unsigned char max_y_pos;
+
   // loop through character of string
   while (str[i] != '\0') {
-    //read characters and increment index
-    DrawChar(str[i++], color, size);
+    // max x position character
+    max_x_pos = cacheMemIndexCol + (CHARS_COLS_LEN + 1) * (size & 0x0F);
+    // max y position character
+    max_y_pos = cacheMemIndexRow;
+    // control if will be in range
+    check = CheckPosition(max_x_pos, max_y_pos, size);
     // update position
-    SetPosition(cacheMemIndexCol + (CHARS_COLS_LEN + 1) + (size >> 1), cacheMemIndexRow);
+    if (ST7735_SUCCESS == check) {
+      //read characters and increment index
+      DrawChar(str[i++], color, size);
+      // update position
+      SetPosition(cacheMemIndexCol + (CHARS_COLS_LEN + 1) * (size & 0x0F), cacheMemIndexRow);
+    }
   }
 }
 
