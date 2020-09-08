@@ -631,7 +631,7 @@ void DrawString(volatile const char *str, uint16_t color, ESizes size)
       //read characters and increment index
       DrawChar(str[i++], color, size);
       // update position
-      SetPosition(cacheMemIndexCol + (CHARS_COLS_LEN + 1) * (size & 0x0F), cacheMemIndexRow);
+      SetPosition(max_x_pos, cacheMemIndexRow);
     }
   }
 }
