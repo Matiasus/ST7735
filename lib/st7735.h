@@ -25,35 +25,35 @@
     #define DDR  DDRB
   #endif
   #ifndef ST7735_DC_LD
-    #define ST7735_DC_LD  PB1
+    #define ST7735_DC_LD  1
   #endif
   #ifndef ST7735_BL
-    #define ST7735_BL     PB2
+    #define ST7735_BL     2
   #endif
   #ifndef ST7735_CS_SD
-    #define ST7735_CS_SD  PB3
+    #define ST7735_CS_SD  3
   #endif
   #ifndef ST7735_CS_LD
-    #define ST7735_CS_LD  PB4
+    #define ST7735_CS_LD  4
   #endif
-  #ifndef ST7735_MOSI
-    #define ST7735_MOSI   PB5
+  #ifndef ST7735_MOSI         // SDA
+    #define ST7735_MOSI   5
   #endif
   #ifndef ST7735_MISO
-    #define ST7735_MISO   PB6
+    #define ST7735_MISO   6
   #endif
-  #ifndef ST7735_SCK
-    #define ST7735_SCK    PB7
+  #ifndef ST7735_SCK         // SCL
+    #define ST7735_SCK    7
   #endif
 
   #ifndef HW_RESET_DDR
-    #define HW_RESET_DDR  DDR
+    #define HW_RESET_DDR  DDRB
   #endif
   #ifndef HW_RESET_PORT
-    #define HW_RESET_PORT PORT
+    #define HW_RESET_PORT PORTB
   #endif
   #ifndef HW_RESET_PIN
-    #define HW_RESET_PIN  PB0
+    #define HW_RESET_PIN  0
   #endif
 
   #define DELAY   0x80
@@ -104,15 +104,23 @@
 
   #define PWCTR6  0xFC
 
+  // Colors
+  #define BLACK   0x0000
+  #define WHITE   0xFFFF
+  #define RED     0xF000
+
+  #define ST7735_SUCCESS 0
+  #define ST7735_ERROR   1
+
   // MV = 0 in MADCTL
   // max columns
-  #define MAX_X 162
+  #define MAX_X   162
   // max rows
-  #define MAX_Y 132
+  #define MAX_Y   132
   // columns max counter
-  #define SIZE_X MAX_X - 1
+  #define SIZE_X  MAX_X - 1
   // rows max counter
-  #define SIZE_Y MAX_Y - 1
+  #define SIZE_Y  MAX_Y - 1
   // whole pixels
   #define CACHE_SIZE_MEM (MAX_X * MAX_Y)
   // number of columns for chars
@@ -128,15 +136,14 @@
 
   /** @enum Font sizes */
   typedef enum {
-    // normal font size: 1x high & 1x wide
-    X1 = 0x00,
-    // bigger font size: 2x higher & 1x wide
-    X2 = 0x01,
-    // the biggest font size: font 2x higher & 2x wider
-    // 0x0A is set cause offset 5 position to right only for
-    //      this case and no offset for previous cases X1, X2
-    //      when draw the characters of string in DrawString()
-    X3 = 0x0A
+    // 1x high & 1x wide size
+    X1 = 0x11,
+    // 2x high & 1x wide size
+    X2 = 0x21,
+    // 2x high & 2x wider size
+    // 0x0A is set because need to offset 5 position to right
+    //      when draw the characters of string 
+    X3 = 0x22
   } ESizes;
 
   /**
@@ -207,6 +214,16 @@
   uint8_t SetWindow(uint8_t, uint8_t, uint8_t, uint8_t);
 
   /**
+   * @desc    Check text position x, y
+   *
+   * @param   uint8_t x - position
+   * @param   uint8_t y - position
+   *
+   * @return  char
+   */
+  char CheckPosition(uint8_t, uint8_t, ESizes);
+
+  /**
    * @description     Set pixel position x, y
    *
    * @param uint8_t   x - position
@@ -261,7 +278,7 @@
    * @param Esizes    see enum sizes in st7735.h
    * @return void
    */
-  void DrawString(char*, uint16_t, ESizes);
+  void DrawString(volatile const char*, uint16_t, ESizes);
 
   /**
    * @description     Draw line
@@ -296,6 +313,19 @@
    * @return void
    */
   void DrawLineVertical(uint8_t, uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @description     Draw rectangle
+   *
+   * @param uint8_t   x - start position
+   * @param uint8_t   x - end position
+   * @param uint8_t   y - start position
+   * @param uint8_t   y - end position
+   * @param uint16_t  color
+   * @return void
+   */
+  void DrawRectangle(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+
 
   /**
    * @description     Clear screen
