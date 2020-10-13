@@ -1,24 +1,25 @@
 #
-# @description makefile for compiling, linking and flashing code to microcontroller
-# @inspiration https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
-#              https://wiki.hacdc.org/index.php/AVR_Makefile
+# @description  Makefile for compiling, linking and flashing code into microcontroller atmega16
 #
-# @author      Marian Hrinko
-# @datum       21.01.2017
+# @author       Marian Hrinko
+# @datum        06.097.2020
+# @notes				Suffix Replacement within a macro: $(name:string1=string2)
+#               For each word in 'name' replace 'string1' with 'string2'
+#               For example $(DEPENDENCIES:.c=.o)
+# @inspiration  https://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
+#               https://wiki.hacdc.org/index.php/AVR_Makefile
 #
-
 # BASIC CONFIGURATION, SETTINGS
 # ------------------------------------------------------------------
-
 #
 # Final file
-TARGET        = main
+TARGET      	= main
 #
 # Library directory
 LIBDIR        = lib
 #
 # Type of microcontroller
-MMCU          = atmega16
+DEVICE        = atmega16
 #
 # Frequency
 FCPU          = 16000000
@@ -30,7 +31,7 @@ OPTIMIZE      = Os
 CC            = avr-gcc
 #
 # Compiler flags
-CFLAGS        = -g -Wall -mmcu=$(MMCU) -DF_CPU=$(FCPU) -$(OPTIMIZE)
+CFLAGS        = -g -Wall -DF_CPU=$(FCPU) -mmcu=$(DEVICE) -$(OPTIMIZE)
 #
 # Includes
 INCLUDES      = -I.
@@ -43,30 +44,29 @@ OBJCOPY       = avr-objcopy
 #
 # Objcopy, create hex file flags 
 # -R .eeprom -O ihex or -j .data -j .text -O ihex
-OBJFLAGS      = -j .data -j .text -O ihex
+OBJFLAGS    	= -j .data -j .text -O ihex
 #
 # Size of file
 AVRSIZE       = avr-size
 #
 # Size flags
-SFLAGS        = --mcu=$(MMCU) --format=avr
+SFLAGS        = --mcu=$(DEVICE) --format=avr
 #
 # Target and dependencies .c
 SOURCES      := $(wildcard *.c $(LIBDIR)/*.c)
 #
 # Target and dependencies .o
-# @notes				
-# Suffix Replacement within a macro: $(name:string1=string2)
-# For each word in 'name' replace 'string1' with 'string2'
-# For example $(SOURCES:.c=.o)
 OBJECTS	      = $(SOURCES:.c=.o)
 
 # AVRDUDE CONFIGURATION, SETTINGS
 # -------------------------------------------------------------------
 
 #
-# AVRDUDE COMMAND
+# AVRDUDE
 AVRDUDE       = avrdude
+#
+# AVRDUDE DEVICE
+AVRDUDE_MMCU  = m16
 #
 # AVRDUDE PORT
 AVRDUDE_PORT  = /dev/ttyUSB0
@@ -77,8 +77,11 @@ AVRDUDE_PROG  = usbasp
 # AVRDUDE BAUD RATE
 AVRDUDE_BAUD  = 19200
 #
+# AVRDUDE BAUD RATE
+AVROBJ_FORMAT = ihex
+#
 # AVRDUDE FLAGS
-AVRDUDE_FLAGS = -p $(MMCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROG) -b $(AVRDUDE_BAUD) -u -U
+AVRDUDE_FLAGS = -p $(AVRDUDE_MMCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROG) -b $(AVRDUDE_BAUD) -u -U
 
 # 
 # Create file to programmer
@@ -102,7 +105,7 @@ $(TARGET).elf:$(OBJECTS)
 
 # 
 # Program avr - send file to programmer
-program: 
+flash: 
 	$(AVRDUDE) $(AVRDUDE_FLAGS) flash:w:$(TARGET).hex:i
 
 #

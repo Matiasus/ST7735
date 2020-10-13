@@ -5,7 +5,7 @@
  * Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
  * @author      Marian Hrinko
- * @datum       08.01.2016
+ * @datum       16.12.2017
  * @file        main.c
  * @tested      AVR Atmega16
  * @inspiration http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
@@ -13,42 +13,35 @@
  *              http://w8bh.net/avr/AvrTFT.pdf
  *
  */
-#ifndef F_CPU
-  #define F_CPU 16000000UL
-#endif
-
-#include <util/delay.h>
+#include <stdio.h>
 #include "lib/st7735.h"
 
+
 /**
- * @description Main function
+ * @desc    Main
  *
- * @param Void
- * @return Null
+ * @param   Void
+ *
+ * @return  Void
  */
 int main(void)
-{ 
-  // init st7735 driver
+{
+  // init lcd
   St7735Init();
   // clear screen
-  ClearScreen(0xffff);
+  ClearScreen(0x0000);
 
-  // draw line
-  DrawLine(23, 137, 20, 20, 0x04af);
-  // draw line
-  DrawLine(23, 137, 21, 21, 0x04af);
-  // set text position
-  SetPosition(41, 10);
-  // draw text
-  DrawString("ST7735 DRIVER", 0x007b, X1);
-  // set text position
-  SetPosition(53, 26);
-  // draw text
-  DrawString("ATMEGA 16", 0x0000);
-  // display on
+  // set position
+  SetPosition(2, 2);
+
+  DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors that he purchased were NPN. I have tested them and verified this. Two of the transistors are shown in the linked photo. They are identified by the letters ON surrounded by a circle, signifying they are products of ON Semiconductor.You can check for a transistor type as follows:One amplifier that the 2N5416 PNP transistors that he purchased were NPN. One amplifier that the 2N5416 PNP transistors that he purchased were NPN", 0xffff, X1);
+
+  // zobrazenie */
   UpdateScreen();
-
-  // return Null
+  // ukoncenie */
   return 0;
 }
+
+
+
 
