@@ -114,9 +114,9 @@
 
   // MV = 0 in MADCTL
   // max columns
-  #define MAX_X   162
+  #define MAX_X   161
   // max rows
-  #define MAX_Y   132
+  #define MAX_Y   130
   // columns max counter
   #define SIZE_X  MAX_X - 1
   // rows max counter
@@ -134,16 +134,21 @@
   /** @const Characters */
   extern const uint8_t CHARACTERS[][CHARS_COLS_LEN];
 
+  /** @var array Chache memory char index row */
+  unsigned short int cacheMemIndexRow;
+  /** @var array Chache memory char index column */
+  unsigned short int cacheMemIndexCol;
+
   /** @enum Font sizes */
   typedef enum {
     // 1x high & 1x wide size
-    X1 = 0x11,
+    X1 = 0x00,
     // 2x high & 1x wide size
-    X2 = 0x21,
+    X2 = 0x80,
     // 2x high & 2x wider size
     // 0x0A is set because need to offset 5 position to right
     //      when draw the characters of string 
-    X3 = 0x22
+    X3 = 0x81
   } ESizes;
 
   /**
@@ -216,12 +221,13 @@
   /**
    * @desc    Check text position x, y
    *
-   * @param   uint8_t x - position
-   * @param   uint8_t y - position
+   * @param   unsigned char
+   * @param   unsigned char
+   * @param   unsigned char
    *
    * @return  char
    */
-  char CheckPosition(uint8_t, uint8_t, ESizes);
+  char CheckPosition(unsigned char, unsigned char, unsigned char, ESizes);
 
   /**
    * @description     Set pixel position x, y

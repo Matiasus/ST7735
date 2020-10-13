@@ -178,9 +178,9 @@ const uint8_t CHARACTERS[][5] PROGMEM = {
 };
 
 /** @var array Chache memory char index row */
-int cacheMemIndexRow = 0;
+unsigned short int cacheMemIndexRow = 0;
 /** @var array Chache memory char index column */
-int cacheMemIndexCol = 0;
+unsigned short int cacheMemIndexCol = 0;
 
 /**
  * @desc    Hardware Reset Impulse - minimal time required 120 ms
@@ -496,7 +496,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
-    
+    // update x position
+    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN;
+  
   // --------------------------------------
   // SIZE X2 - font 2x higher, normal wide
   // --------------------------------------
@@ -519,6 +521,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
+    // update x position
+    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN;
+
   // --------------------------------------
   // SIZE X3 - font 2x higher, 2x wider
   // --------------------------------------
@@ -545,6 +550,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
       // fill index row again
       idxRow = CHARS_ROWS_LEN;
     }
+
+    // update x position
+    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN + CHARS_COLS_LEN + 1;
   }
 
   // return exit
@@ -565,11 +573,18 @@ char SetPosition(uint8_t x, uint8_t y)
   if ((x > MAX_X) && (y > MAX_Y)) {
     // error
     return ST7735_ERROR;
+
+  } else if ((x > MAX_X) && (y <= MAX_Y)) {
+    // set position y
+    cacheMemIndexRow = y;
+    // set position x
+    cacheMemIndexCol = 2;
+  } else {
+    // set position y 
+    cacheMemIndexRow = y;
+    // set position x
+    cacheMemIndexCol = x;
   }
-  // set position y 
-  cacheMemIndexRow = y;
-  // set position x
-  cacheMemIndexCol = x;
   // success
   return ST7735_SUCCESS;
 }
@@ -577,26 +592,27 @@ char SetPosition(uint8_t x, uint8_t y)
 /**
  * @desc    Check text position x, y
  *
- * @param   uint8_t x - position
- * @param   uint8_t y - position
+ * @param   unsigned char x - position
+ * @param   unsigned char y - position
+ * @param   unsigned char
  *
  * @return  char
  */
-char CheckPosition(uint8_t x, uint8_t y, ESizes size)
+char CheckPosition(unsigned char x, unsigned char y, unsigned char max_y, ESizes size)
 {
   // check if coordinates is out of range
-  if ((x > MAX_X) && (y > MAX_Y)) {
+  if ((x > MAX_X) && (y > max_y)) {
     // out of range
     return ST7735_ERROR;
-  }
 
-  // check if coordinates is out of range
-  if ((x > MAX_X) && (y <= MAX_Y)) {
+  }
+  // if next line
+  if ((x > MAX_X) && (y <= max_y)) {
     // set position y
-    cacheMemIndexRow = cacheMemIndexRow + (CHARS_ROWS_LEN + 1) * (size >> 4) + 2;
+    cacheMemIndexRow = y;
     // set position x
     cacheMemIndexCol = 2;
-  }
+  } 
 
   // success
   return ST7735_SUCCESS;
@@ -615,23 +631,27 @@ void DrawString(volatile const char *str, uint16_t color, ESizes size)
   // variables
   unsigned int i = 0;
   unsigned char check;
-  unsigned char max_x_pos;
+  unsigned char delta_y;
   unsigned char max_y_pos;
+  unsigned char new_x_pos;
+  unsigned char new_y_pos;
 
   // loop through character of string
   while (str[i] != '\0') {
     // max x position character
-    max_x_pos = cacheMemIndexCol + (CHARS_COLS_LEN + 1) * (size & 0x0F);
+    new_x_pos = cacheMemIndexCol + CHARS_COLS_LEN + (size & 0x0F);
+    // delta y
+    delta_y = CHARS_ROWS_LEN + (size >> 4);
     // max y position character
-    max_y_pos = cacheMemIndexRow;
+    new_y_pos = cacheMemIndexRow + delta_y;
+    // max y pos
+    max_y_pos = MAX_Y - delta_y;
     // control if will be in range
-    check = CheckPosition(max_x_pos, max_y_pos, size);
+    check = CheckPosition(new_x_pos, new_y_pos, max_y_pos, size);
     // update position
     if (ST7735_SUCCESS == check) {
-      //read characters and increment index
+      // read characters and increment index
       DrawChar(str[i++], color, size);
-      // update position
-      SetPosition(max_x_pos, cacheMemIndexRow);
     }
   }
 }
@@ -645,6 +665,7 @@ void DrawString(volatile const char *str, uint16_t color, ESizes size)
  * @param   uint8_t   y start position / 0 <= rows <= MAX_Y-1 
  * @param   uint8_t   y end position   / 0 <= rows <= MAX_Y-1
  * @param   uint16_t  color
+ *
  * @return  void
  */
 char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
