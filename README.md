@@ -1,4 +1,4 @@
-# ST7735 1.8 TFT LCD display
+# C Library for ST7735 1.8 TFT LCD display
 
 ## ST7735 Description
 Detailed information are described in [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf).
