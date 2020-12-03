@@ -29,15 +29,15 @@
 int main(void)
 {
   // init lcd
-  St7735Init();
+  ST7735_Init();
   // clear screen
-  ClearScreen(0x0000);
+  ST7735_ClearScreen(0x0000);
   // set position
-  SetPosition(2, 2);
+  ST7735_SetPosition(2, 2);
   // Draw string
-  DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors were NPN", 0xffff, X1);
+  ST7735_DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors were NPN", 0xffff, X1);
   // update screen
-  UpdateScreen();
+  ST7735_UpdateScreen();
   
   // return
   return 0;

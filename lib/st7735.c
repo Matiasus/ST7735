@@ -87,7 +87,7 @@ unsigned short int cacheMemIndexCol = 0;
  *
  * @return  void
  */
-void HardwareReset(void)
+void ST7735_HWReset(void)
 {
   // Actiavte pull-up register logical high on pin RST
   HW_RESET_PORT |= (1 << HW_RESET_PIN);
@@ -110,7 +110,7 @@ void HardwareReset(void)
  *
  * @return  void
  */
-void SpiInit(void)
+void ST7735_SpiInit(void)
 {
   // Output: SCK, MOSI, CS_LD, DC_LD 
   DDR  |= (1 << ST7735_SCK)   | 
@@ -132,18 +132,18 @@ void SpiInit(void)
  *
  * @return  void
  */
-void St7735Init(void)
+void ST7735_Init(void)
 {
   // set DDR BackLigt
   DDR  |= (1 << ST7735_BL);
   // set high level on Backlight
   PORT |= (1 << ST7735_BL);
   // init spi
-  SpiInit();
+  ST7735_SpiInit();
   // reset
-  HardwareReset();
+  ST7735_HWReset();
   // load list of commands
-  St7735Commands(INIT_ST7735B);
+  ST7735_Commands(INIT_ST7735B);
 }
 
 /**
@@ -153,7 +153,7 @@ void St7735Init(void)
  *
  * @return  void
  */
-void St7735Commands(const uint8_t *initializers)
+void ST7735_Commands(const uint8_t *initializers)
 {
   uint8_t args;
   uint8_t cmnd;
@@ -171,15 +171,15 @@ void St7735Commands(const uint8_t *initializers)
     cmnd = pgm_read_byte(initializers++);
 
     // send command
-    CommandSend(cmnd);
+    ST7735_CommandSend(cmnd);
     // send arguments
     while (args--) {
       // send argument
-      Data8BitsSend(pgm_read_byte(initializers++));
+      ST7735_Data8BitsSend(pgm_read_byte(initializers++));
     }
 
     // delay
-    DelayMs(time);
+    ST7735_DelayMs(time);
   }
 }
 
@@ -190,7 +190,7 @@ void St7735Commands(const uint8_t *initializers)
  *
  * @return void
  */
-uint8_t CommandSend(uint8_t data)
+uint8_t ST7735_CommandSend(uint8_t data)
 {
   // chip enable - active low
   PORT &= ~(1 << ST7735_CS_LD);
@@ -213,7 +213,7 @@ uint8_t CommandSend(uint8_t data)
  *
  * @return  void
  */
-uint8_t Data8BitsSend(uint8_t data)
+uint8_t ST7735_Data8BitsSend(uint8_t data)
 {
   // chip enable - active low
   PORT &= ~(1 << ST7735_CS_LD);
@@ -236,7 +236,7 @@ uint8_t Data8BitsSend(uint8_t data)
  *
  * @return  void
  */
-uint8_t Data16BitsSend(uint16_t data)
+uint8_t ST7735_Data16BitsSend(uint16_t data)
 {
   // chip enable - active low
   PORT &= ~(1 << ST7735_CS_LD);
@@ -264,7 +264,7 @@ uint8_t Data16BitsSend(uint16_t data)
  *
  * @return  uint8_t
  */
-uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
+uint8_t ST7735_SetPartialArea(uint8_t sRow, uint8_t eRow)
 {
   // check if coordinates is out of range
   if ((sRow > SIZE_Y) ||
@@ -273,17 +273,17 @@ uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
     return 0;
   }  
   // column address set
-  CommandSend(PTLAR);
+  ST7735_CommandSend(PTLAR);
   // start start Row
-  Data8BitsSend(0x00);
+  ST7735_Data8BitsSend(0x00);
   // start start Row
-  Data8BitsSend(sRow);
+  ST7735_Data8BitsSend(sRow);
   // row end Row
-  Data8BitsSend(0x00);
+  ST7735_Data8BitsSend(0x00);
   // end end Row
-  Data8BitsSend(eRow);
+  ST7735_Data8BitsSend(eRow);
   // column address set
-  CommandSend(PTLON);
+  ST7735_CommandSend(PTLON);
   // success
   return 1;
 }
@@ -298,7 +298,7 @@ uint8_t SetPartialArea(uint8_t sRow, uint8_t eRow)
  *
  * @return  uint8_t
  */
-uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
+uint8_t ST7735_SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
 {
   // check if coordinates is out of range
   if ((x0 > x1)     ||
@@ -309,18 +309,18 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
     return ST7735_ERROR;
   }  
   // column address set
-  CommandSend(CASET);
+  ST7735_CommandSend(CASET);
   // send start x position
-  Data16BitsSend(0x0000 | x0);
+  ST7735_Data16BitsSend(0x0000 | x0);
   // send end x position
-  Data16BitsSend(0x0000 | x1);
+  ST7735_Data16BitsSend(0x0000 | x1);
 
   // row address set
-  CommandSend(RASET);
+  ST7735_CommandSend(RASET);
   // send start y position
-  Data16BitsSend(0x0000 | y0);
+  ST7735_Data16BitsSend(0x0000 | y0);
   // send end y position
-  Data16BitsSend(0x0000 | y1);
+  ST7735_Data16BitsSend(0x0000 | y1);
 
   // success
   return ST7735_SUCCESS;
@@ -334,14 +334,14 @@ uint8_t SetWindow(uint8_t x0, uint8_t x1, uint8_t y0, uint8_t y1)
  *
  * @return  void
  */
-void SendColor565(uint16_t color, uint16_t count)
+void ST7735_SendColor565(uint16_t color, uint16_t count)
 {
   // access to RAM
-  CommandSend(RAMWR);
+  ST7735_CommandSend(RAMWR);
   // counter
   while (count--) {
     // write color
-    Data16BitsSend(color);
+    ST7735_Data16BitsSend(color);
   }
 }
 
@@ -354,12 +354,12 @@ void SendColor565(uint16_t color, uint16_t count)
  *
  * @return  void
  */
-void DrawPixel(uint8_t x, uint8_t y, uint16_t color)
+void ST7735_DrawPixel(uint8_t x, uint8_t y, uint16_t color)
 {
   // set window
-  SetWindow(x, x, y, y);
+  ST7735_SetWindow(x, x, y, y);
   // draw pixel by 565 mode
-  SendColor565(color, 1);
+  ST7735_SendColor565(color, 1);
 }
 
 /**
@@ -370,7 +370,7 @@ void DrawPixel(uint8_t x, uint8_t y, uint16_t color)
  * @param   Esizes    see enum sizes in st7735.h
  * @return  void
  */
-char DrawChar(char character, uint16_t color, ESizes size)
+char ST7735_DrawChar(char character, uint16_t color, ESizes size)
 {
   // variables
   uint8_t letter, idxCol, idxRow;
@@ -398,7 +398,7 @@ char DrawChar(char character, uint16_t color, ESizes size)
         // check if bit set
         if (letter & (1 << idxRow)) {
           // draw pixel 
-          DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + idxRow, color);
+          ST7735_DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + idxRow, color);
         }
       }
       // fill index row again
@@ -421,9 +421,9 @@ char DrawChar(char character, uint16_t color, ESizes size)
         if (letter & (1 << idxRow)) {
           // draw first left up pixel; 
           // (idxRow << 1) - 2x multiplied 
-          DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1), color);
+          ST7735_DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1), color);
           // draw second left down pixel
-          DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1) + 1, color);
+          ST7735_DrawPixel(cacheMemIndexCol + idxCol, cacheMemIndexRow + (idxRow << 1) + 1, color);
         }
       }
       // fill index row again
@@ -446,13 +446,13 @@ char DrawChar(char character, uint16_t color, ESizes size)
         if (letter & (1 << idxRow)) {
           // draw first left up pixel; 
           // (idxRow << 1) - 2x multiplied 
-          DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1), color);
+          ST7735_DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1), color);
           // draw second left down pixel
-          DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1) + 1, color);
+          ST7735_DrawPixel(cacheMemIndexCol + (idxCol << 1), cacheMemIndexRow + (idxRow << 1) + 1, color);
           // draw third right up pixel
-          DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1), color);
+          ST7735_DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1), color);
           // draw fourth right down pixel
-          DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1) + 1, color);
+          ST7735_DrawPixel(cacheMemIndexCol + (idxCol << 1) + 1, cacheMemIndexRow + (idxRow << 1) + 1, color);
         }
       }
       // fill index row again
@@ -475,7 +475,7 @@ char DrawChar(char character, uint16_t color, ESizes size)
  *
  * @return  void
  */
-char SetPosition(uint8_t x, uint8_t y)
+char ST7735_SetPosition(uint8_t x, uint8_t y)
 {
   // check if coordinates is out of range
   if ((x > MAX_X) && (y > MAX_Y)) {
@@ -506,7 +506,7 @@ char SetPosition(uint8_t x, uint8_t y)
  *
  * @return  char
  */
-char CheckPosition(unsigned char x, unsigned char y, unsigned char max_y, ESizes size)
+char ST7735_CheckPosition(unsigned char x, unsigned char y, unsigned char max_y, ESizes size)
 {
   // check if coordinates is out of range
   if ((x > MAX_X) && (y > max_y)) {
@@ -535,7 +535,7 @@ char CheckPosition(unsigned char x, unsigned char y, unsigned char max_y, ESizes
  *
  * @return  void
  */
-void DrawString(char *str, uint16_t color, ESizes size)
+void ST7735_DrawString(char *str, uint16_t color, ESizes size)
 {
   // variables
   unsigned int i = 0;
@@ -556,11 +556,11 @@ void DrawString(char *str, uint16_t color, ESizes size)
     // max y pos
     max_y_pos = MAX_Y - delta_y;
     // control if will be in range
-    check = CheckPosition(new_x_pos, new_y_pos, max_y_pos, size);
+    check = ST7735_CheckPosition(new_x_pos, new_y_pos, max_y_pos, size);
     // update position
     if (ST7735_SUCCESS == check) {
       // read characters and increment index
-      DrawChar(str[i++], color, size);
+      ST7735_DrawChar(str[i++], color, size);
     }
   }
 }
@@ -577,7 +577,7 @@ void DrawString(char *str, uint16_t color, ESizes size)
  *
  * @return  void
  */
-char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
+char ST7735_DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
 {
   // determinant
   int16_t D;
@@ -612,7 +612,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
     // calculate determinant
     D = (delta_y << 1) - delta_x;
     // draw first pixel
-    DrawPixel(x1, y1, color);
+    ST7735_DrawPixel(x1, y1, color);
     // check if x1 equal x2
     while (x1 != x2) {
       // update x1
@@ -627,14 +627,14 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
       // update deteminant
       D += 2*delta_y;
       // draw next pixel
-      DrawPixel(x1, y1, color);
+      ST7735_DrawPixel(x1, y1, color);
     }
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
     D = delta_y - (delta_x << 1);
     // draw first pixel
-    DrawPixel(x1, y1, color);
+    ST7735_DrawPixel(x1, y1, color);
     // check if y2 equal y1
     while (y1 != y2) {
       // update y1
@@ -649,7 +649,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
       // update deteminant
       D -= 2*delta_x;
       // draw next pixel
-      DrawPixel(x1, y1, color);
+      ST7735_DrawPixel(x1, y1, color);
     }
   }
   // success return
@@ -666,7 +666,7 @@ char DrawLine(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint16_t color)
  *
  * @return void
  */
-void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
+void ST7735_DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
 {
   uint8_t temp;
   // check if start is > as end  
@@ -679,9 +679,9 @@ void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
     xs = temp;
   }
   // set window
-  SetWindow(xs, xe, y, y);
+  ST7735_SetWindow(xs, xe, y, y);
   // draw pixel by 565 mode
-  SendColor565(color, xe - xs);
+  ST7735_SendColor565(color, xe - xs);
 }
 
 /**
@@ -694,7 +694,7 @@ void DrawLineHorizontal(uint8_t xs, uint8_t xe, uint8_t y, uint16_t color)
  *
  * @return  void
  */
-void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
+void ST7735_DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
 {
   uint8_t temp;
   // check if start is > as end
@@ -707,9 +707,9 @@ void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
     ys = temp;
   }
   // set window
-  SetWindow(x, x, ys, ye);
+  ST7735_SetWindow(x, x, ys, ye);
   // draw pixel by 565 mode
-  SendColor565(color, ye - ys);
+  ST7735_SendColor565(color, ye - ys);
 }
 
 /**
@@ -723,7 +723,7 @@ void DrawLineVertical(uint8_t x, uint8_t ys, uint8_t ye, uint16_t color)
  *
  * @return  void
  */
-void DrawRectangle(uint8_t xs, uint8_t xe, uint8_t ys, uint8_t ye, uint16_t color)
+void ST7735_DrawRectangle(uint8_t xs, uint8_t xe, uint8_t ys, uint8_t ye, uint16_t color)
 {
   uint8_t temp;
   // check if start is > as end  
@@ -745,9 +745,9 @@ void DrawRectangle(uint8_t xs, uint8_t xe, uint8_t ys, uint8_t ye, uint16_t colo
     ys = temp;
   }
   // set window
-  SetWindow(xs, xe, ys, ye);
+  ST7735_SetWindow(xs, xe, ys, ye);
   // send color
-  SendColor565(color, (xe-xs+1)*(ye-ys+1));  
+  ST7735_SendColor565(color, (xe-xs+1)*(ye-ys+1));  
 }
 
 /**
@@ -757,12 +757,12 @@ void DrawRectangle(uint8_t xs, uint8_t xe, uint8_t ys, uint8_t ye, uint16_t colo
  *
  * @return  void
  */
-void ClearScreen(uint16_t color)
+void ST7735_ClearScreen(uint16_t color)
 {
   // set whole window
-  SetWindow(0, SIZE_X, 0, SIZE_Y);
+  ST7735_SetWindow(0, SIZE_X, 0, SIZE_Y);
   // draw individual pixels
-  SendColor565(color, CACHE_SIZE_MEM);
+  ST7735_SendColor565(color, CACHE_SIZE_MEM);
 }
 
 /**
@@ -772,10 +772,10 @@ void ClearScreen(uint16_t color)
  *
  * @return  void
  */
-void UpdateScreen(void)
+void ST7735_UpdateScreen(void)
 {
   // display on
-  CommandSend(DISPON);
+  ST7735_CommandSend(DISPON);
 }
 
 /**
@@ -785,7 +785,7 @@ void UpdateScreen(void)
  *
  * @return  void
  */
-void DelayMs(uint8_t time)
+void ST7735_DelayMs(uint8_t time)
 {
   // loop through real time
   while (time--) {

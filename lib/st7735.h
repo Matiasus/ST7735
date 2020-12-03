@@ -159,7 +159,7 @@
    *
    * @return  void
    */
-  void HardwareReset(void);
+  void ST7735_HWReset(void);
 
   /**
    * @desc    Init SPI communication
@@ -168,7 +168,7 @@
    *
    * @return  void
    */
-  void SpiInit(void);
+  void ST7735_SpiInit(void);
 
   /**
    * @desc    Init st7735 driver
@@ -177,7 +177,7 @@
    *
    * @return  void
    */
-  void St7735Init(void);
+  void ST7735_Init(void);
 
   /**
    * @desc    Send list commands
@@ -186,7 +186,7 @@
    *
    * @return  void
    */
-  void St7735Commands(const uint8_t *commands);
+  void ST7735_Commands(const uint8_t *commands);
 
   /**
    * @desc    Command send
@@ -195,7 +195,7 @@
    *
    * @return void
    */
-  uint8_t CommandSend(uint8_t);
+  uint8_t ST7735_CommandSend(uint8_t);
 
   /**
    * @desc    8bits data send
@@ -204,7 +204,7 @@
    *
    * @return  void
    */
-  uint8_t Data8BitsSend(uint8_t);
+  uint8_t ST7735_Data8BitsSend(uint8_t);
 
   /**
    * @desc    16bits data send
@@ -213,7 +213,7 @@
    *
    * @return  void
    */
-  uint8_t Data16BitsSend(uint16_t);
+  uint8_t ST7735_Data16BitsSend(uint16_t);
 
   /**
    * @desc    Set window
@@ -225,7 +225,7 @@
    *
    * @return  uint8_t
    */
-  uint8_t SetWindow(uint8_t, uint8_t, uint8_t, uint8_t);
+  uint8_t ST7735_SetWindow(uint8_t, uint8_t, uint8_t, uint8_t);
 
   /**
    * @desc    Check text position x, y
@@ -236,7 +236,7 @@
    *
    * @return  char
    */
-  char CheckPosition(unsigned char, unsigned char, unsigned char, ESizes);
+  char ST7735_CheckPosition(unsigned char, unsigned char, unsigned char, ESizes);
 
   /**
    * @desc    Set pixel position x, y
@@ -246,7 +246,7 @@
    *
    * @return  char
    */
-  char SetPosition(uint8_t, uint8_t);
+  char ST7735_SetPosition(uint8_t, uint8_t);
 
   /**
    * @desc    Set partial area / window
@@ -256,7 +256,7 @@
    *
    * @return  uint8_t
    */
-  uint8_t SetPartialArea(uint8_t, uint8_t);
+  uint8_t ST7735_SetPartialArea(uint8_t, uint8_t);
 
   /**
    * @desc    Write color pixels
@@ -266,7 +266,7 @@
    *
    * @return  void
    */
-  void SendColor565(uint16_t, uint16_t);
+  void ST7735_SendColor565(uint16_t, uint16_t);
 
   /**
    * @desc    Draw pixel
@@ -277,7 +277,7 @@
    * 
    * @return  void
    */
-  void DrawPixel(uint8_t, uint8_t, uint16_t);
+  void ST7735_DrawPixel(uint8_t, uint8_t, uint16_t);
 
   /**
    * @description     Draw character
@@ -287,7 +287,7 @@
    * @param Esizes    see enum sizes in st7735.h
    * @return void
    */
-  char DrawChar(char, uint16_t, ESizes);
+  char ST7735_DrawChar(char, uint16_t, ESizes);
 
   /**
    * @desc    Draw string
@@ -298,7 +298,7 @@
 
    * @return void
    */
-  void DrawString(char*, uint16_t, ESizes);
+  void ST7735_DrawString(char*, uint16_t, ESizes);
 
   /**
    * @desc    Draw line
@@ -311,7 +311,7 @@
    *
    * @return void
    */
-  char DrawLine(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+  char ST7735_DrawLine(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
 
   /**
    * @desc    Fast draw line horizontal
@@ -323,7 +323,7 @@
    *
    * @return  void
    */
-  void DrawLineHorizontal(uint8_t, uint8_t, uint8_t, uint16_t);
+  void ST7735_DrawLineHorizontal(uint8_t, uint8_t, uint8_t, uint16_t);
 
   /**
    * @desc    Fast draw line vertical
@@ -335,7 +335,7 @@
    *
    * @return  void
    */
-  void DrawLineVertical(uint8_t, uint8_t, uint8_t, uint16_t);
+  void ST7735_DrawLineVertical(uint8_t, uint8_t, uint8_t, uint16_t);
 
   /**
    * @desc    Draw rectangle
@@ -348,7 +348,7 @@
    *
    * @return  void
    */
-  void DrawRectangle(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+  void ST7735_DrawRectangle(uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
 
 
   /**
@@ -358,7 +358,7 @@
    *
    * @return  void
    */
-  void ClearScreen(uint16_t);
+  void ST7735_ClearScreen(uint16_t);
 
   /**
    * @description     Update screen
@@ -367,7 +367,7 @@
    *
    * @return void
    */
-  void UpdateScreen(void);
+  void ST7735_UpdateScreen(void);
 
   /**
    * @desc    Delay
@@ -376,6 +376,6 @@
    *
    * @return  void
    */
-  void DelayMs(uint8_t);
+  void ST7735_DelayMs(uint8_t);
 
 #endif
