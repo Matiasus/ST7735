@@ -11,7 +11,7 @@ C library is aimed for driving [ST7735 1.8 TFT LCD display](#demonstration) 162x
 | :--- | :--- |  :--- |
 | RST | PORTB 0 | Chip Reset Signal |
 | CS | PORTB 4 | SPI Chip Select |
-| D/C | PORTB 1 | SPI data / command; D/C=1: Display Data or Parameter, D/C=0: Command Data |
+| D/C | PORTB 1 | SPI data / command; 1=Data, 0=Command |
 | DIN | PORTB 5 | SPI Serial data in / MOSI |
 | CLK | PORTB 7 | SPI Serial clock signal |
 | UCC | +5V | Supply Voltage +5V |
