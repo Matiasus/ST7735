@@ -8,7 +8,7 @@ C library is aimed for driving [ST7735 1.8 TFT LCD display](#demonstration) 162x
 
 ## Hardware connection
 | PORT LCD | PORT ATMEGA16A | Description |
-| :---: | :---: |  :---: |
+| :--- | :--- |  :--- |
 | RST | PORTB 0 | Chip Reset Signal |
 | CS | PORTB 4 | SPI Chip Select |
 | D/C | PORTB 1 | SPI data / command; D/C=1: Display Data or Parameter, D/C=0: Command Data |
