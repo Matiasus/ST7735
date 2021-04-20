@@ -89,7 +89,7 @@ unsigned short int cacheMemIndexCol = 0;
  */
 void ST7735_HWReset(void)
 {
-  // Actiavte pull-up register logical high on pin RST
+  // Actiavte pull-up resistor logical high on pin RST
   HW_RESET_PORT |= (1 << HW_RESET_PIN);
   // DDR as output
   HW_RESET_DDR  |= (1 << HW_RESET_PIN); 
@@ -368,6 +368,7 @@ void ST7735_DrawPixel(uint8_t x, uint8_t y, uint16_t color)
  * @param   char      character
  * @param   uint16_t  color
  * @param   Esizes    see enum sizes in st7735.h
+ *
  * @return  void
  */
 char ST7735_DrawChar(char character, uint16_t color, ESizes size)
@@ -473,7 +474,7 @@ char ST7735_DrawChar(char character, uint16_t color, ESizes size)
  * @param   uint8_t x - position
  * @param   uint8_t y - position
  *
- * @return  void
+ * @return  char
  */
 char ST7735_SetPosition(uint8_t x, uint8_t y)
 {
