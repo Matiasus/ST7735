@@ -16,11 +16,10 @@
  *              https://github.com/adafruit/Adafruit-ST7735-Library
  *              http://w8bh.net/avr/AvrTFT.pdf
  */
-#include <stdio.h>
 #include "lib/st7735.h"
 
 /**
- * @desc    Main
+ * @desc    Main function
  *
  * @param   Void
  *
@@ -30,16 +29,19 @@ int main(void)
 {
   // init lcd
   ST7735_Init();
+
   // clear screen
-  ST7735_ClearScreen(0x0000);
+  ST7735_ClearScreen(BLACK);
   // set position
   ST7735_SetPosition(2, 2);
   // Draw string
-  ST7735_DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors were NPN", 0xffff, X1);
+  ST7735_DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors were NPN", WHITE, X1);
   // update screen
   ST7735_UpdateScreen();
-  
-  // return
+
+  // EXIT
+  // ------------------------------------------------- 
+  // return & exit
   return 0;
 }
 
