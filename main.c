@@ -29,7 +29,7 @@
 int main (void)
 {
 
-  // LCD 1 - init
+  // LCD 1 - init structs
   // ----------------------------------------------------------
   // Chip Select
   struct signal cs = { .ddr = DDRB, .port = PORTB, .pin = LCD1_CS };
@@ -40,22 +40,13 @@ int main (void)
 
   // init lcd 1
   ST7735_Init (&lcd_01);
-   
-/* 
-  // init
-  lcd.Init (lcd.cs);
-
   // clear screen
-  lcd.ClearScreen (RED, lcd.cs);
-  // update screen
-  lcd.UpdateScreen (lcd.cs);
-  // init lcd
-  ST7735_Init();
+  ST7735_ClearScreen(&lcd_01, BLACK);
 
-  // clear screen
-  ST7735_ClearScreen(BLACK);
+/*
   // set position
   ST7735_SetPosition(2, 2);
+ 
   // Draw string
   ST7735_DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors were NPN", WHITE, X1);
   // update screen

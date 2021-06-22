@@ -164,7 +164,7 @@
    *
    * @return  void
    */
-  void ST7735_HWReset (void);
+  void ST7735_Reset (void);
 
   /**
    * @desc    Init SPI

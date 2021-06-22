@@ -88,7 +88,7 @@ unsigned short int cacheMemIndexCol = 0;
  *
  * @return  void
  */
-void ST7735_HWReset (void)
+void ST7735_Reset (void)
 {
   // Actiavte pull-up resistor logical high on pin RST
   SET_BIT (HW_RESET_PORT, HW_RESET_PIN);
@@ -169,7 +169,7 @@ void ST7735_Init (struct st7735 * lcd)
   // init CS
   ST7735_CS_Init (lcd);
   // hardware reset
-  ST7735_HWReset ();
+  ST7735_Reset ();
   // init BL
   ST7735_BL_Init (lcd);
   // load list of commands
@@ -231,7 +231,7 @@ uint8_t ST7735_CommandSend (struct st7735 * lcd, uint8_t data)
   // transmitting data
   SPDR = data;
   // wait till data transmit
-  while (!(SPSR & (1 << SPIF)));
+  while ( BIT_IS_SET (SPSR, SPIF) );
   // chip disable - idle high
   SET_BIT (lcd->cs->port, lcd->cs->pin);
   // return received data
