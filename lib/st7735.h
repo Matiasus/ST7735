@@ -113,12 +113,19 @@
   #define CHARS_COLS_LEN        5                 // number of columns for chars
   #define CHARS_ROWS_LEN        8                 // number of rows for chars
 
+
+  // FUNCTION macros
+  // -----------------------------------
   // set bit
-  #define SET_BIT(port, bit)    ((port) |= (1 << (bit)))
+  #define SET_BIT(port, bit)                ( ((port) |= (1 << (bit))) )
   // clear bit
-  #define CLR_BIT(port, bit)    ((port) &= ~(1 << (bit)))
-  // bit is set
-  #define BIT_IS_SET(port, bit) (((port) & (1 << bit)) ? 1 : 0)
+  #define CLR_BIT(port, bit)                ( ((port) &= ~(1 << (bit))) )
+  // bit is set?
+  #define IS_BIT_SET(port, bit)             ( ((port) & (1 << (bit))) ? 1 : 0 )
+  // bit is clear?
+  #define IS_BIT_CLR(port, bit)             ( IS_BIT_SET(port, bit) ? 0 : 1 )
+  // wait until bit is set
+  #define WAIT_UNTIL_BIT_IS_SET(port, bit)  { while (IS_BIT_CLR(port, bit)); }
 
   /** @const Command list ST7735B */
   extern const uint8_t INIT_ST7735B[];
@@ -256,38 +263,6 @@
   uint8_t ST7735_SetWindow (struct st7735 *, uint8_t, uint8_t, uint8_t, uint8_t);
 
   /**
-   * @desc    Check text position
-   *
-   * @param   unsigned char
-   * @param   unsigned char
-   * @param   unsigned char
-   * @param   Esizes
-   *
-   * @return  uint8_t
-   */
-  uint8_t ST7735_CheckPosition (uint8_t, uint8_t, uint8_t, ESizes);
-
-  /**
-   * @desc    Set pixel position x, y
-   *
-   * @param   uint8_t
-   * @param   uint8_t
-   *
-   * @return  uint8_t
-   */
-  uint8_t ST7735_SetPosition (uint8_t, uint8_t);
-
-  /**
-   * @desc    Set partial area / window
-   *
-   * @param   uint8_t
-   * @param   uint8_t
-   *
-   * @return  uint8_t
-   */
-  uint8_t ST7735_SetPartialArea (uint8_t, uint8_t);
-
-  /**
    * @desc    Write color pixels
    *
    * @param   struct st7735 *
@@ -299,18 +274,6 @@
   void ST7735_SendColor565 (struct st7735 *, uint16_t, uint16_t);
 
   /**
-   * @desc    Draw pixel
-   *
-   * @param   struct st7735 *
-   * @param   uint8_t
-   * @param   uint8_t
-   * @param   uint16_t
-   * 
-   * @return  void
-   */
-  void ST7735_DrawPixel (struct st7735 *, uint8_t, uint8_t, uint16_t);
-
-  /**
    * @desc    Clear screen
    *
    * @param   struct st7735 *
@@ -319,15 +282,6 @@
    * @return  void
    */
   void ST7735_ClearScreen (struct st7735 *, uint16_t);
-
-  /**
-   * @desc    Update screen
-   *
-   * @param   struct st7735 *
-   *
-   * @return  void
-   */
-  void ST7735_UpdateScreen (struct st7735 *);
 
   /**
    * @desc    Delay

@@ -231,7 +231,7 @@ uint8_t ST7735_CommandSend (struct st7735 * lcd, uint8_t data)
   // transmitting data
   SPDR = data;
   // wait till data transmit
-  while ( BIT_IS_SET (SPSR, SPIF) );
+  WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
   SET_BIT (lcd->cs->port, lcd->cs->pin);
   // return received data
@@ -255,7 +255,7 @@ uint8_t ST7735_Data8BitsSend (struct st7735 * lcd, uint8_t data)
   // transmitting data
   SPDR = data;
   // wait till data transmit
-  while (!(SPSR & (1 << SPIF)));
+  WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
   SET_BIT (lcd->cs->port, lcd->cs->pin);
   // return received data
@@ -279,11 +279,11 @@ uint8_t ST7735_Data16BitsSend (struct st7735 * lcd, uint16_t data)
   // transmitting data high byte
   SPDR = (uint8_t) (data >> 8);
   // wait till high byte transmit
-  while (!(SPSR & (1 << SPIF)));
+  WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // transmitting data low byte
   SPDR = (uint8_t) (data);
   // wait till low byte transmit
-  while (!(SPSR & (1 << SPIF)));
+  WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
   SET_BIT (lcd->cs->port, lcd->cs->pin);
   // return received data
@@ -350,24 +350,6 @@ void ST7735_SendColor565 (struct st7735 * lcd, uint16_t color, uint16_t count)
 }
 
 /**
- * @desc    Draw pixel
- *
- * @param   struct st7735 * lcd
- * @param   uint8_t   x position / 0 <= cols <= MAX_X-1
- * @param   uint8_t   y position / 0 <= rows <= MAX_Y-1
- * @param   uint16_t  color
- *
- * @return  void
- */
-void ST7735_DrawPixel (struct st7735 * lcd, uint8_t x, uint8_t y, uint16_t color)
-{
-  // set window
-  ST7735_SetWindow (lcd, x, x, y, y);
-  // draw pixel by 565 mode
-  ST7735_SendColor565 (lcd, color, 1);
-}
-
-/**
  * @desc    Clear screen
  *
  * @param   struct st7735 * lcd
@@ -381,19 +363,6 @@ void ST7735_ClearScreen (struct st7735 * lcd, uint16_t color)
   ST7735_SetWindow (lcd, 0, SIZE_X, 0, SIZE_Y);
   // draw individual pixels
   ST7735_SendColor565 (lcd, color, CACHE_SIZE_MEM);
-}
-
-/**
- * @desc    Update screen
- *
- * @param   struct st7735 * lcd
- *
- * @return  void
- */
-void ST7735_UpdateScreen (struct st7735 * lcd)
-{
-  // display on
-  ST7735_CommandSend (lcd, DISPON);
 }
 
 /**

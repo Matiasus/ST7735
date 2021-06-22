@@ -43,17 +43,6 @@ int main (void)
   // clear screen
   ST7735_ClearScreen(&lcd_01, BLACK);
 
-/*
-  // set position
-  ST7735_SetPosition(2, 2);
- 
-  // Draw string
-  ST7735_DrawString("Dated 08/14/06. One amplifier that the 2N5416 PNP transistors were NPN", WHITE, X1);
-  // update screen
-  ST7735_UpdateScreen();
-
-*/
-
   // EXIT
   // ------------------------------------------------- 
   // return & exit
