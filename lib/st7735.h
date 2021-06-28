@@ -37,7 +37,6 @@
   #define PORT                  PORTB
   #define DDR                   DDRB 
   #define ST7735_DC_LD          1
-  #define ST7735_CS             4
   #define ST7735_MOSI           5 // SDA
   #define ST7735_MISO           6
   #define ST7735_SCK            7 // SCL
@@ -116,14 +115,14 @@
 
   // FUNCTION macros
   // -----------------------------------
-  // set bit
-  #define SET_BIT(port, bit)                ( ((port) |= (1 << (bit))) )
   // clear bit
   #define CLR_BIT(port, bit)                ( ((port) &= ~(1 << (bit))) )
-  // bit is set?
-  #define IS_BIT_SET(port, bit)             ( ((port) & (1 << (bit))) ? 1 : 0 )
+  // set bit
+  #define SET_BIT(port, bit)                ( ((port) |= (1 << (bit))) )
   // bit is clear?
   #define IS_BIT_CLR(port, bit)             ( IS_BIT_SET(port, bit) ? 0 : 1 )
+  // bit is set?
+  #define IS_BIT_SET(port, bit)             ( ((port) & (1 << (bit))) ? 1 : 0 )
   // wait until bit is set
   #define WAIT_UNTIL_BIT_IS_SET(port, bit)  { while (IS_BIT_CLR(port, bit)); }
 
@@ -171,7 +170,7 @@
    *
    * @return  void
    */
-  void ST7735_Reset (void);
+  void ST7735_Reset (struct st7735 *);
 
   /**
    * @desc    Init SPI
@@ -183,22 +182,13 @@
   void ST7735_SPI_Init (void);
 
   /**
-   * @desc    Init CS
+   * @desc    Init PINS
    *
    * @param   struct st7735 *
    *
    * @return  void
    */
-  void ST7735_CS_Init (struct st7735 *);
-
-  /**
-   * @desc    Init BackLight
-   *
-   * @param   void
-   *
-   * @return  void
-   */
-  void ST7735_BL_Init (struct st7735 *);
+  void ST7735_Pins_Init (struct st7735 *);
 
   /**
    * @desc    Init st7735 driver
@@ -274,6 +264,18 @@
   void ST7735_SendColor565 (struct st7735 *, uint16_t, uint16_t);
 
   /**
+   * @desc    Draw pixel
+   *
+   * @param   struct st7735 *
+   * @param   uint8_t x position
+   * @param   uint8_t y position
+   * @param   uint16_t color
+   * 
+   * @return  void
+   */
+  void ST7735_DrawPixel (struct st7735 *, uint8_t, uint8_t, uint16_t);
+
+  /**
    * @desc    Clear screen
    *
    * @param   struct st7735 *
@@ -282,6 +284,114 @@
    * @return  void
    */
   void ST7735_ClearScreen (struct st7735 *, uint16_t);
+
+  /**
+   * @desc    Update screen
+   *
+   * @param   struct st7735 *
+   *
+   * @return  void
+   */
+  void ST7735_UpdateScreen (struct st7735 *);
+
+  /**
+   * @desc    Check text position x, y
+   *
+   * @param   unsigned char x - position
+   * @param   unsigned char y - position
+   * @param   unsigned char
+   *
+   * @return  char
+   */
+  char ST7735_CheckPosition (unsigned char, unsigned char, unsigned char, ESizes);
+
+  /**
+   * @desc    Set text position x, y
+   *
+   * @param   uint8_t x - position
+   * @param   uint8_t y - position
+   *
+   * @return  char
+   */
+  char ST7735_SetPosition (uint8_t, uint8_t);
+
+  /**
+   * @desc    Draw character
+   *
+   * @param   struct st7735 *
+   * @param   char      character
+   * @param   uint16_t  color
+   * @param   Esizes    see enum sizes in st7735.h
+   *
+   * @return  void
+   */
+  char ST7735_DrawChar (struct st7735 *, char, uint16_t, ESizes);
+
+  /**
+   * @desc    Draw string
+   *
+   * @param   struct st7735 *
+   * @param   char *
+   * @param   uint16_t
+   * @param   Esizes
+
+   * @return void
+   */
+  void ST7735_DrawString (struct st7735 *, char*, uint16_t, ESizes);
+
+  /**
+   * @desc    Draw line
+   *
+   * @param   struct st7735 *
+   * @param   uint8_t x - start position
+   * @param   uint8_t x - end position
+   * @param   uint8_t y - start position
+   * @param   uint8_t y - end position
+   * @param   uint16_t color
+   *
+   * @return void
+   */
+  char ST7735_DrawLine (struct st7735 *, uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @desc    Fast draw line horizontal
+   *
+   * @param   struct st7735 *
+   * @param   uint8_t x - start position
+   * @param   uint8_t x - end position
+   * @param   uint8_t y - position
+   * @param   uint16_t color
+   *
+   * @return  void
+   */
+  void ST7735_DrawLineHorizontal (struct st7735 *, uint8_t, uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @desc    Fast draw line vertical
+   *
+   * @param   struct st7735 *
+   * @param   uint8_t x - position
+   * @param   uint8_t y - start position
+   * @param   uint8_t y - end position
+   * @param   uint16_t color
+   *
+   * @return  void
+   */
+  void ST7735_DrawLineVertical (struct st7735 *, uint8_t, uint8_t, uint8_t, uint16_t);
+
+  /**
+   * @desc    Draw rectangle
+   *
+   * @param   struct st7735 *
+   * @param   uint8_t x - start position
+   * @param   uint8_t x - end position
+   * @param   uint8_t y - start position
+   * @param   uint8_t y - end position
+   * @param   uint16_t color
+   *
+   * @return  void
+   */
+  void ST7735_DrawRectangle (struct st7735 *, uint8_t, uint8_t, uint8_t, uint8_t, uint16_t);
 
   /**
    * @desc    Delay
