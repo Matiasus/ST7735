@@ -32,7 +32,7 @@ Prior defined for MCU Atmega16 / Atmega8. Need to be carefull with SPI ports def
 Library was tested and proved on a **_ST7735 1.8″ TFT Dispay_** with **_Atmega16_**.
   
 ## Demonstration
-<img src="img/st7735.jpg" />
+<img src="img/st7735_v2.jpg" />
 
 ## Links
 - [Datasheet ST7735](http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf)
