@@ -76,7 +76,6 @@ int main (void)
     ST7735_DrawRectangle (&lcd1, start, i, 30, 40, RED);
   }
 
-
   // LCD 2
   // ----------------------------------------------------------
   // init lcd 2
@@ -87,7 +86,7 @@ int main (void)
   ST7735_SetPosition (17, 10);  
   // draw string
   ST7735_DrawString (&lcd2, "ST7735 LCD 2", WHITE, X3);
-  // draw line
+  // draw fast horizontal line
   ST7735_DrawLineHorizontal (&lcd2, 5, MAX_X - 5, 27, WHITE);
 
   // EXIT

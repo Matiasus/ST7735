@@ -139,7 +139,7 @@
     X3 = 0x81
   };
 
-  /** @struct Chip Select */
+  /** @struct Signal */
   struct signal {
     // ddr
     volatile uint8_t * ddr;
@@ -149,7 +149,7 @@
     uint8_t pin;
   };
 
-  /** @struct lcd */
+  /** @struct Lcd */
   struct st7735 {
     // Chip Select
     struct signal * cs;
@@ -335,9 +335,9 @@
    * @desc    Draw character
    *
    * @param   struct st7735 *
-   * @param   char      character
-   * @param   uint16_t  color
-   * @param   enum Size    see enum sizes in st7735.h
+   * @param   char
+   * @param   uint16_t
+   * @param   enum Size (X1, X2, X3)
    *
    * @return  void
    */
@@ -349,7 +349,7 @@
    * @param   struct st7735 *
    * @param   char *
    * @param   uint16_t
-   * @param   enum Size
+   * @param   enum Size (X1, X2, X3)
 
    * @return void
    */
@@ -359,11 +359,11 @@
    * @desc    Draw line
    *
    * @param   struct st7735 *
-   * @param   uint8_t x - start position
-   * @param   uint8_t x - end position
-   * @param   uint8_t y - start position
-   * @param   uint8_t y - end position
-   * @param   uint16_t color
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint16_t
    *
    * @return void
    */
@@ -373,10 +373,10 @@
    * @desc    Fast draw line horizontal
    *
    * @param   struct st7735 *
-   * @param   uint8_t x - start position
-   * @param   uint8_t x - end position
-   * @param   uint8_t y - position
-   * @param   uint16_t color
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint16_t
    *
    * @return  void
    */
@@ -386,10 +386,10 @@
    * @desc    Fast draw line vertical
    *
    * @param   struct st7735 *
-   * @param   uint8_t x - position
-   * @param   uint8_t y - start position
-   * @param   uint8_t y - end position
-   * @param   uint16_t color
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint16_t
    *
    * @return  void
    */
@@ -399,11 +399,11 @@
    * @desc    Draw rectangle
    *
    * @param   struct st7735 *
-   * @param   uint8_t x - start position
-   * @param   uint8_t x - end position
-   * @param   uint8_t y - start position
-   * @param   uint8_t y - end position
-   * @param   uint16_t color
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint16_t
    *
    * @return  void
    */

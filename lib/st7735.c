@@ -176,8 +176,8 @@ void ST7735_Init (struct st7735 * lcd)
 /**
  * @desc    Send list commands
  *
- * @param   struct st7735 * lcd
- * @param   const uint8_t*
+ * @param   struct st7735 *
+ * @param   const uint8_t *
  *
  * @return  void
  */
@@ -349,9 +349,9 @@ void ST7735_SendColor565 (struct st7735 * lcd, uint16_t color, uint16_t count)
  * @desc    Draw pixel
  *
  * @param   struct st7735 * lcd
- * @param   uint8_t   x position / 0 <= cols <= MAX_X-1
- * @param   uint8_t   y position / 0 <= rows <= MAX_Y-1
- * @param   uint16_t  color
+ * @param   uint8_t x position / 0 <= cols <= MAX_X-1
+ * @param   uint8_t y position / 0 <= rows <= MAX_Y-1
+ * @param   uint16_t color
  *
  * @return  void
  */
@@ -392,7 +392,7 @@ void ST7735_RAM_Content_Hide (struct st7735 * lcd)
 /**
  * @desc    Clear screen
  *
- * @param   struct st7735 * lcd
+ * @param   struct st7735 *
  * @param   uint16_t color
  *
  * @return  void
@@ -408,10 +408,10 @@ void ST7735_ClearScreen (struct st7735 * lcd, uint16_t color)
 /**
  * @desc    Draw character
  *
- * @param   struct    st7735 *
- * @param   char      character
- * @param   uint16_t  color
- * @param   enum Size    see enum sizes in st7735.h
+ * @param   struct st7735 *
+ * @param   char character
+ * @param   uint16_t color
+ * @param   enum Size (X1, X2, X3)
  *
  * @return  void
  */
@@ -574,10 +574,10 @@ char ST7735_CheckPosition (unsigned char x, unsigned char y, unsigned char max_y
 /**
  * @desc    Draw string
  *
- * @param   struct    st7735 *
- * @param   char*     string 
- * @param   uint16_t  color
- * @param   enum Size    see enum sizes in st7735.h
+ * @param   struct st7735 *
+ * @param   char * string 
+ * @param   uint16_t color
+ * @param   enum Size (X1, X2, X3)
  *
  * @return  void
  */
@@ -615,12 +615,12 @@ void ST7735_DrawString (struct st7735 * lcd, char *str, uint16_t color, enum Siz
  * @desc    Draw line by Bresenham algoritm
  * @surce   https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
  *  
- * @param   struct    st7735 *
- * @param   uint8_t   x start position / 0 <= cols <= MAX_X-1
- * @param   uint8_t   x end position   / 0 <= cols <= MAX_X-1
- * @param   uint8_t   y start position / 0 <= rows <= MAX_Y-1 
- * @param   uint8_t   y end position   / 0 <= rows <= MAX_Y-1
- * @param   uint16_t  color
+ * @param   struct st7735 *
+ * @param   uint8_t x start position / 0 <= cols <= MAX_X-1
+ * @param   uint8_t x end position   / 0 <= cols <= MAX_X-1
+ * @param   uint8_t y start position / 0 <= rows <= MAX_Y-1 
+ * @param   uint8_t y end position   / 0 <= rows <= MAX_Y-1
+ * @param   uint16_t color
  *
  * @return  void
  */
@@ -706,10 +706,10 @@ char ST7735_DrawLine (struct st7735 * lcd, uint8_t x1, uint8_t x2, uint8_t y1, u
 /**
  * @desc    Fast draw line horizontal
  *
- * @param   struct   st7735 *
- * @param   uint8_t  xs - start position
- * @param   uint8_t  xe - end position
- * @param   uint8_t  y - position
+ * @param   struct st7735 *
+ * @param   uint8_t xs - start position
+ * @param   uint8_t xe - end position
+ * @param   uint8_t y - position
  * @param   uint16_t color
  *
  * @return void
@@ -735,10 +735,10 @@ void ST7735_DrawLineHorizontal (struct st7735 * lcd, uint8_t xs, uint8_t xe, uin
 /**
  * @desc    Fast draw line vertical
  *
- * @param   struct   st7735 *
- * @param   uint8_t  x - position
- * @param   uint8_t  ys - start position
- * @param   uint8_t  ye - end position
+ * @param   struct st7735 *
+ * @param   uint8_t x - position
+ * @param   uint8_t ys - start position
+ * @param   uint8_t ye - end position
  * @param   uint16_t color
  *
  * @return  void
@@ -764,12 +764,12 @@ void ST7735_DrawLineVertical (struct st7735 * lcd, uint8_t x, uint8_t ys, uint8_
 /**
  * @desc    Draw rectangle
  *
- * @param   struct    st7735 *
- * @param   uint8_t   x start position
- * @param   uint8_t   x end position
- * @param   uint8_t   y start position
- * @param   uint8_t   y end position
- * @param   uint16_t  color
+ * @param   struct st7735 *
+ * @param   uint8_t x start position
+ * @param   uint8_t x end position
+ * @param   uint8_t y start position
+ * @param   uint8_t y end position
+ * @param   uint16_t color
  *
  * @return  void
  */
@@ -803,7 +803,7 @@ void ST7735_DrawRectangle (struct st7735 * lcd, uint8_t xs, uint8_t xe, uint8_t 
 /**
  * @desc    Delay
  *
- * @param   uint8_t time in milliseconds
+ * @param   uint8_t time in milliseconds / max 256ms
  *
  * @return  void
  */
