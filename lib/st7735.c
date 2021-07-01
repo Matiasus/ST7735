@@ -88,20 +88,21 @@ unsigned short int cacheMemIndexCol = 0;
  *
  * @return  void
  */
-void ST7735_Reset (struct st7735 * lcd)
+void ST7735_Reset (struct signal * reset)
 {
   // Actiavte pull-up resistor logical high on pin RST
-  SET_BIT (HW_RESET_PORT, HW_RESET_PIN);
+  // posible write: SET_BIT (*(*reset).port, reset->pin)
+  SET_BIT (*(reset->port), reset->pin);
   // DDR as output
-  SET_BIT (HW_RESET_DDR, HW_RESET_PIN);
+  SET_BIT (*(reset->ddr), reset->pin);
   // delay 200 ms
   _delay_ms(200);
   // Reset Low 
-  CLR_BIT (HW_RESET_PORT, HW_RESET_PIN);
+  CLR_BIT (*(reset->port), reset->pin);
   // delay 200 ms
   _delay_ms(200);
   // Reset High
-  SET_BIT (HW_RESET_PORT, HW_RESET_PIN);
+  SET_BIT (*(reset->port), reset->pin);
 }
 
 /**
@@ -113,10 +114,14 @@ void ST7735_Reset (struct st7735 * lcd)
  */
 void ST7735_SPI_Init (void)
 {
-  // Output: SCK, MOSI, DC_LD 
+  // Output: SCK, MOSI 
   SET_BIT (DDR, ST7735_SCK);
   SET_BIT (DDR, ST7735_MOSI);
-  SET_BIT (DDR, ST7735_DC_LD);
+/*
+  // Input: MISO with pullup
+  CLR_BIT (DDR, ST7735_MOSI);
+  PORT_BIT (PORT, ST7735_MOSI);
+*/
   // SPE  - SPI Enale
   // MSTR - Master device
   SET_BIT (SPCR, SPE);
@@ -126,33 +131,23 @@ void ST7735_SPI_Init (void)
 }
 
 /**
- * @desc    Init CS
+ * @desc    Init Pins
  *
  * @param   struct st7735 *
  *
  * @return  void
  */
-void ST7735_CS_Init (struct st7735 * lcd)
+void ST7735_Pins_Init (struct st7735 * lcd)
 {
-  // set CS as output
-  SET_BIT (lcd->cs->ddr, lcd->cs->pin);
-  // set CS high level / inactive /
-  SET_BIT (lcd->cs->port, lcd->cs->pin);
-}
-
-/**
- * @desc    Init BackLight
- *
- * @param   struct st7735 *
- *
- * @return  void
- */
-void ST7735_BL_Init (struct st7735 * lcd)
-{
-  // set DDR BackLigt
-  SET_BIT (lcd->bl->ddr, lcd->bl->pin);
-  // set BL high level / Backlight ON /
-  SET_BIT (lcd->bl->port, lcd->bl->pin);
+  // DDR
+  // --------------------------------------
+  SET_BIT (*(lcd->cs->ddr), lcd->cs->pin);
+  SET_BIT (*(lcd->bl->ddr), lcd->bl->pin);
+  SET_BIT (*(lcd->dc->ddr), lcd->dc->pin);
+  // PORT
+  // --------------------------------------
+  SET_BIT (*(lcd->cs->port), lcd->cs->pin);   // Chip Select H
+  SET_BIT (*(lcd->bl->port), lcd->bl->pin);   // BackLigt ON
 }
 
 /**
@@ -164,14 +159,12 @@ void ST7735_BL_Init (struct st7735 * lcd)
  */
 void ST7735_Init (struct st7735 * lcd)
 {
+  // init pins
+  ST7735_Pins_Init (lcd);
   // init SPI
   ST7735_SPI_Init ();
-  // init CS
-  ST7735_CS_Init (lcd);
   // hardware reset
-  ST7735_Reset (lcd);
-  // init BL
-  ST7735_BL_Init (lcd);
+  ST7735_Reset (lcd->rs);
   // load list of commands
   ST7735_Commands (lcd, INIT_ST7735B);
 }
@@ -208,7 +201,6 @@ void ST7735_Commands (struct st7735 * lcd, const uint8_t *initializers)
       // send argument
       ST7735_Data8BitsSend (lcd, pgm_read_byte (initializers++));
     }
-
     // delay
     ST7735_DelayMs (time);
   }
@@ -225,15 +217,15 @@ void ST7735_Commands (struct st7735 * lcd, const uint8_t *initializers)
 uint8_t ST7735_CommandSend (struct st7735 * lcd, uint8_t data)
 {
   // chip enable - active low
-  CLR_BIT (lcd->cs->port, lcd->cs->pin);
+  CLR_BIT (*(lcd->cs->port), lcd->cs->pin);
   // command (active low)
-  CLR_BIT (PORT, ST7735_DC_LD);
+  CLR_BIT (*(lcd->dc->port), lcd->dc->pin);
   // transmitting data
   SPDR = data;
   // wait till data transmit
   WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
-  SET_BIT (lcd->cs->port, lcd->cs->pin);
+  SET_BIT (*(lcd->cs->port), lcd->cs->pin);
   // return received data
   return SPDR;
 }
@@ -249,15 +241,15 @@ uint8_t ST7735_CommandSend (struct st7735 * lcd, uint8_t data)
 uint8_t ST7735_Data8BitsSend (struct st7735 * lcd, uint8_t data)
 {
   // chip enable - active low
-  CLR_BIT (lcd->cs->port, lcd->cs->pin);
+  CLR_BIT (*(lcd->cs->port), lcd->cs->pin);
   // data (active high)
-  SET_BIT (PORT, ST7735_DC_LD);
+  SET_BIT (*(lcd->dc->port), lcd->dc->pin);
   // transmitting data
   SPDR = data;
   // wait till data transmit
   WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
-  SET_BIT (lcd->cs->port, lcd->cs->pin);
+  SET_BIT (*(lcd->cs->port), lcd->cs->pin);
   // return received data
   return SPDR;
 }
@@ -273,9 +265,9 @@ uint8_t ST7735_Data8BitsSend (struct st7735 * lcd, uint8_t data)
 uint8_t ST7735_Data16BitsSend (struct st7735 * lcd, uint16_t data)
 {
   // chip enable - active low
-  CLR_BIT (lcd->cs->port, lcd->cs->pin);
+  CLR_BIT (*(lcd->cs->port), lcd->cs->pin);
   // data (active high)
-  SET_BIT (PORT, ST7735_DC_LD);
+  SET_BIT (*(lcd->dc->port), lcd->dc->pin);
   // transmitting data high byte
   SPDR = (uint8_t) (data >> 8);
   // wait till high byte transmit
@@ -285,7 +277,7 @@ uint8_t ST7735_Data16BitsSend (struct st7735 * lcd, uint16_t data)
   // wait till low byte transmit
   WAIT_UNTIL_BIT_IS_SET (SPSR, SPIF);
   // chip disable - idle high
-  SET_BIT (lcd->cs->port, lcd->cs->pin);
+  SET_BIT (*(lcd->cs->port), lcd->cs->pin);
   // return received data
   return SPDR;
 }
@@ -368,6 +360,32 @@ void ST7735_DrawPixel (struct st7735 * lcd, uint8_t x, uint8_t y, uint16_t color
 }
 
 /**
+ * @desc    RAM Content Show
+ *
+ * @param   struct st7735 * lcd
+ *
+ * @return  void
+ */
+void ST7735_RAM_Content_Show (struct st7735 * lcd)
+{
+  // display content on
+  ST7735_CommandSend (lcd, DISPON);
+}
+
+/**
+ * @desc    RAM Content Hide
+ *
+ * @param   struct st7735 * lcd
+ *
+ * @return  void
+ */
+void ST7735_RAM_Content_Hide (struct st7735 * lcd)
+{
+  // display content off
+  ST7735_CommandSend (lcd, DISPOFF);
+}
+
+/**
  * @desc    Clear screen
  *
  * @param   struct st7735 * lcd
@@ -384,29 +402,16 @@ void ST7735_ClearScreen (struct st7735 * lcd, uint16_t color)
 }
 
 /**
- * @desc    Update screen
- *
- * @param   struct st7735 *
- *
- * @return  void
- */
-void ST7735_UpdateScreen (struct st7735 * lcd)
-{
-  // display on
-  ST7735_CommandSend (lcd, DISPON);
-}
-
-/**
- * @desc    Draw character 2x larger
+ * @desc    Draw character
  *
  * @param   struct    st7735 *
  * @param   char      character
  * @param   uint16_t  color
- * @param   Esizes    see enum sizes in st7735.h
+ * @param   enum Size    see enum sizes in st7735.h
  *
  * @return  void
  */
-char ST7735_DrawChar (struct st7735 * lcd, char character, uint16_t color, ESizes size)
+char ST7735_DrawChar (struct st7735 * lcd, char character, uint16_t color, enum Size size)
 {
   // variables
   uint8_t letter, idxCol, idxRow;
@@ -441,7 +446,7 @@ char ST7735_DrawChar (struct st7735 * lcd, char character, uint16_t color, ESize
       idxRow = CHARS_ROWS_LEN;
     }
     // update x position
-    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN;
+    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN + 1;
   
   // --------------------------------------
   // SIZE X2 - font 2x higher, normal wide
@@ -466,7 +471,7 @@ char ST7735_DrawChar (struct st7735 * lcd, char character, uint16_t color, ESize
       idxRow = CHARS_ROWS_LEN;
     }
     // update x position
-    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN;
+    cacheMemIndexCol = cacheMemIndexCol + CHARS_COLS_LEN + 1;
 
   // --------------------------------------
   // SIZE X3 - font 2x higher, 2x wider
@@ -542,7 +547,7 @@ char ST7735_SetPosition (uint8_t x, uint8_t y)
  *
  * @return  char
  */
-char ST7735_CheckPosition (unsigned char x, unsigned char y, unsigned char max_y, ESizes size)
+char ST7735_CheckPosition (unsigned char x, unsigned char y, unsigned char max_y, enum Size size)
 {
   // check if coordinates is out of range
   if ((x > MAX_X) && (y > max_y)) {
@@ -568,11 +573,11 @@ char ST7735_CheckPosition (unsigned char x, unsigned char y, unsigned char max_y
  * @param   struct    st7735 *
  * @param   char*     string 
  * @param   uint16_t  color
- * @param   Esizes    see enum sizes in st7735.h
+ * @param   enum Size    see enum sizes in st7735.h
  *
  * @return  void
  */
-void ST7735_DrawString (struct st7735 * lcd, char *str, uint16_t color, ESizes size)
+void ST7735_DrawString (struct st7735 * lcd, char *str, uint16_t color, enum Size size)
 {
   // variables
   unsigned int i = 0;

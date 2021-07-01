@@ -9,7 +9,7 @@
  * @datum       13.10.2020
  * @update      21.06.2021
  * @file        st7735.h
- * @tested      AVR Atmega16
+ * @tested      AVR Atmega328
  *
  * @depend      
  * --------------------------------------------------------------------------------------------+
@@ -30,21 +30,11 @@
 
   // PORT/PIN definition
   // -----------------------------------
-  #define HW_RESET_DDR          DDRB
-  #define HW_RESET_PORT         PORTB
-  #define HW_RESET_PIN          0
-
   #define PORT                  PORTB
   #define DDR                   DDRB 
-  #define ST7735_DC_LD          1
-  #define ST7735_MOSI           5 // SDA
-  #define ST7735_MISO           6
-  #define ST7735_SCK            7 // SCL
-
-  // 1st LCD Display
-  // -----------------------------------  
-  #define LCD1_CS               3
-  #define LCD1_BL               2
+  #define ST7735_MOSI           3 // SDA
+  #define ST7735_MISO           4
+  #define ST7735_SCK            5 // SCL
 
   // Command definition
   // -----------------------------------
@@ -134,7 +124,7 @@
   unsigned short int cacheMemIndexCol;
 
   /** @enum Font sizes */
-  typedef enum {
+  enum Size {
     // 1x high & 1x wide size
     X1 = 0x00,
     // 2x high & 1x wide size
@@ -143,16 +133,16 @@
     // 0x0A is set because need to offset 5 position to right
     //      when draw the characters of string 
     X3 = 0x81
-  } ESizes;
+  };
 
   /** @struct Chip Select */
   struct signal {
     // ddr
-    char ddr;
+    volatile uint8_t * ddr;
     // port
-    char port;   
+    volatile uint8_t * port;
     // pin
-    char pin;
+    uint8_t pin;
   };
 
   /** @struct lcd */
@@ -161,7 +151,20 @@
     struct signal * cs;
     // Back Light
     struct signal * bl;
+    // Data / Command
+    struct signal * dc;
+    // Reset
+    struct signal * rs;
   };
+
+  /**
+   * @desc    Init st7735 driver
+   *
+   * @param   struct st7735
+   *
+   * @return  void
+   */
+  void ST7735_Init (struct st7735 *);
 
   /**
    * @desc    Hardware Reset
@@ -170,7 +173,7 @@
    *
    * @return  void
    */
-  void ST7735_Reset (struct st7735 *);
+  void ST7735_Reset (struct signal *);
 
   /**
    * @desc    Init SPI
@@ -189,15 +192,6 @@
    * @return  void
    */
   void ST7735_Pins_Init (struct st7735 *);
-
-  /**
-   * @desc    Init st7735 driver
-   *
-   * @param   struct st7735
-   *
-   * @return  void
-   */
-  void ST7735_Init (struct st7735 *);
 
   /**
    * @desc    Send list commands
@@ -286,13 +280,31 @@
   void ST7735_ClearScreen (struct st7735 *, uint16_t);
 
   /**
-   * @desc    Update screen
+   * @desc    RAM Content Show
    *
-   * @param   struct st7735 *
+   * @param   struct st7735 * lcd
    *
    * @return  void
    */
-  void ST7735_UpdateScreen (struct st7735 *);
+  void ST7735_RAM_Content_Show (struct st7735 *);
+
+  /**
+   * @desc    RAM Content Hide
+   *
+   * @param   struct st7735 * lcd
+   *
+   * @return  void
+   */
+  void ST7735_RAM_Content_Hide (struct st7735 *);
+
+  /**
+   * @desc    Display ON
+   *
+   * @param   struct st7735 * lcd
+   *
+   * @return  void
+   */
+  void ST7735_DisplayOn (struct st7735 *);
 
   /**
    * @desc    Check text position x, y
@@ -303,7 +315,7 @@
    *
    * @return  char
    */
-  char ST7735_CheckPosition (unsigned char, unsigned char, unsigned char, ESizes);
+  char ST7735_CheckPosition (unsigned char, unsigned char, unsigned char, enum Size);
 
   /**
    * @desc    Set text position x, y
@@ -321,11 +333,11 @@
    * @param   struct st7735 *
    * @param   char      character
    * @param   uint16_t  color
-   * @param   Esizes    see enum sizes in st7735.h
+   * @param   enum Size    see enum sizes in st7735.h
    *
    * @return  void
    */
-  char ST7735_DrawChar (struct st7735 *, char, uint16_t, ESizes);
+  char ST7735_DrawChar (struct st7735 *, char, uint16_t, enum Size);
 
   /**
    * @desc    Draw string
@@ -333,11 +345,11 @@
    * @param   struct st7735 *
    * @param   char *
    * @param   uint16_t
-   * @param   Esizes
+   * @param   enum Size
 
    * @return void
    */
-  void ST7735_DrawString (struct st7735 *, char*, uint16_t, ESizes);
+  void ST7735_DrawString (struct st7735 *, char*, uint16_t, enum Size);
 
   /**
    * @desc    Draw line

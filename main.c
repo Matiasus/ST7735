@@ -28,27 +28,67 @@
  */
 int main (void)
 {
+  // start
+  uint8_t start = 30;
+  // end
+  uint8_t end = MAX_X - start;
+
   // LCD 1 - init structs
   // ----------------------------------------------------------
   // Chip Select
-  struct signal cs = { .ddr = DDRB, .port = PORTB, .pin = 3 };
+  struct signal cs = { .ddr = &DDRB, .port = &PORTB, .pin = 2 };
   // Back Light
-  struct signal bl = { .ddr = DDRB, .port = PORTB, .pin = 2 };
+  struct signal bl = { .ddr = &DDRB, .port = &PORTB, .pin = 1 };
+  // Data / Command
+  struct signal dc = { .ddr = &DDRB, .port = &PORTB, .pin = 0 };
+  // Reset
+  struct signal rs = { .ddr = &DDRD, .port = &PORTD, .pin = 7 };
   // LCD struct
-  struct st7735 lcd_01 = { &cs, &bl };
+  struct st7735 lcd1 = { .cs = &cs, .bl = &bl, .dc = &dc, .rs = &rs };
 
+  // LCD 2 - init structs
+  // ----------------------------------------------------------
+  // Chip Select
+  struct signal cs2 = { .ddr = &DDRD, .port = &PORTD, .pin = 0 };
+  // Back Light
+  struct signal bl2 = { .ddr = &DDRD, .port = &PORTD, .pin = 1 };
+  // Data / Command
+  struct signal dc2 = { .ddr = &DDRB, .port = &PORTB, .pin = 0 };
+  // Reset
+  struct signal rs2 = { .ddr = &DDRD, .port = &PORTD, .pin = 3 };
+  // LCD struct
+  struct st7735 lcd2 = { .cs = &cs2, .bl = &bl2, .dc = &dc2, .rs = &rs2 };
+
+  // LCD 1
+  // ----------------------------------------------------------
   // init lcd 1
-  ST7735_Init (&lcd_01);
+  ST7735_Init (&lcd1);
   // clear screen
-  ST7735_ClearScreen (&lcd_01, BLACK);
-
-  // draw character
-  ST7735_DrawChar (&lcd_01, 'B', RED, X2);
-
+  ST7735_ClearScreen (&lcd1, BLACK);
   // set position X, Y
-  ST7735_SetPosition (1, 2);  
+  ST7735_SetPosition (start + 5, 10);  
   // draw string
-  ST7735_DrawString (&lcd_01, "Dated 08/14/06. One amplifier that the 2N5416 PNP transistors that he purchased were NPN. I have tested them and verified this. Two of the transistors are shown in the linked photo. They are identified by the letters ON surrounded by a circle, signifying they are products of ON Semiconductor.You can check for a transistor type as follows:One amplifier that the 2N5416 PNP transistors that he purchased were NPN. One amplifier that the 2N5416 PNP transistors that he purchased were NPN", WHITE, X2);
+  ST7735_DrawString (&lcd1, "Loading DATA ...", WHITE, X2);
+
+  // draw Loading
+  for (uint8_t i = start; i < end; i++) {
+    // draw rectangle
+    ST7735_DrawRectangle (&lcd1, start, i, 30, 40, RED);
+  }
+
+
+  // LCD 2
+  // ----------------------------------------------------------
+  // init lcd 2
+  ST7735_Init (&lcd2);
+  // clear screen
+  ST7735_ClearScreen (&lcd2, BLACK);
+  // set position X, Y
+  ST7735_SetPosition (17, 10);  
+  // draw string
+  ST7735_DrawString (&lcd2, "ST7735 LCD 2", WHITE, X3);
+  // draw line
+  ST7735_DrawLineHorizontal (&lcd2, 5, MAX_X - 5, 27, WHITE);
 
   // EXIT
   // ------------------------------------------------- 
