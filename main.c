@@ -1,6 +1,6 @@
 /** 
  * --------------------------------------------------------------------------------------------+ 
- * @desc        Main example st7735 LCD driver
+ * @name        Main example st7735 LCD driver
  * --------------------------------------------------------------------------------------------+ 
  *              Copyright (C) 2020 Marian Hrinko.
  *              Written by Marian Hrinko (mato.hrinko@gmail.com)
@@ -9,13 +9,13 @@
  * @datum       13.10.2020
  * @update      21.06.2021
  * @file        main.c
- * @tested      AVR Atmega16
+ * @version     2.0
+ * @tested      AVR Atmega328
  *
  * @depend      st7735.h
  * --------------------------------------------------------------------------------------------+
- * @inspir      http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
- *              https://github.com/adafruit/Adafruit-ST7735-Library
- *              http://w8bh.net/avr/AvrTFT.pdf
+ * @descr       Version 1.0 -> applicable for 1 display
+ *              Version 2.0 -> applicable for more than 1 display
  */
 #include "lib/st7735.h"
 

@@ -1,17 +1,21 @@
 /** 
  * --------------------------------------------------------------------------------------------+ 
- * @desc        ST773 1.8" LCD Driver
+ * @name        ST773 1.8" LCD Driver
  * --------------------------------------------------------------------------------------------+ 
  *              Copyright (C) 2020 Marian Hrinko.
  *              Written by Marian Hrinko (mato.hrinko@gmail.com)
  *
  * @author      Marian Hrinko
  * @datum       13.10.2020
- * @update      21.06.2021
+ * @update      01.07.2021
  * @file        st7735.c
- * @tested      AVR Atmega16
+ * @version     2.0
+ * @tested      AVR Atmega328
  *
  * @depend      font.h
+ * --------------------------------------------------------------------------------------------+
+ * @descr       Version 1.0 -> applicable for 1 display
+ *              Version 2.0 -> applicable for more than 1 display
  * --------------------------------------------------------------------------------------------+
  * @inspir      http://www.displayfuture.com/Display/datasheet/controller/ST7735.pdf
  *              https://github.com/adafruit/Adafruit-ST7735-Library
