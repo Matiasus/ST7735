@@ -88,7 +88,7 @@ unsigned short int cacheMemIndexCol = 0;
 /**
  * @desc    Hardware Reset
  *
- * @param   void
+ * @param   struct signal *
  *
  * @return  void
  */
@@ -181,7 +181,7 @@ void ST7735_Init (struct st7735 * lcd)
  *
  * @return  void
  */
-void ST7735_Commands (struct st7735 * lcd, const uint8_t *initializers)
+void ST7735_Commands (struct st7735 * lcd, const uint8_t * initializers)
 {
   uint8_t args;
   uint8_t cmnd;

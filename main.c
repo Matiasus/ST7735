@@ -33,7 +33,7 @@ int main (void)
   // end
   uint8_t end = MAX_X - start;
 
-  // LCD 1 - init structs
+  // LCD 1 - init struct
   // ----------------------------------------------------------
   // Chip Select
   struct signal cs = { .ddr = &DDRB, .port = &PORTB, .pin = 2 };
@@ -46,7 +46,7 @@ int main (void)
   // LCD struct
   struct st7735 lcd1 = { .cs = &cs, .bl = &bl, .dc = &dc, .rs = &rs };
 
-  // LCD 2 - init structs
+  // LCD 2 - init struct
   // ----------------------------------------------------------
   // Chip Select
   struct signal cs2 = { .ddr = &DDRD, .port = &PORTD, .pin = 0 };
@@ -94,7 +94,3 @@ int main (void)
   // return & exit
   return 0;
 }
-
-
-
-

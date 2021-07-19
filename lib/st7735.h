@@ -27,9 +27,9 @@
 #ifndef __ST7735_H__
 #define __ST7735_H__
 
-  // Success
+  // Success / Error
+  // -----------------------------------
   #define ST7735_SUCCESS        0
-  // Error
   #define ST7735_ERROR          1
 
   // PORT/PIN definition
@@ -164,7 +164,7 @@
   /**
    * @desc    Init st7735 driver
    *
-   * @param   struct st7735
+   * @param   struct st7735 *
    *
    * @return  void
    */
@@ -173,7 +173,7 @@
   /**
    * @desc    Hardware Reset
    *
-   * @param   void
+   * @param   struct signal *
    *
    * @return  void
    */
@@ -265,9 +265,9 @@
    * @desc    Draw pixel
    *
    * @param   struct st7735 *
-   * @param   uint8_t x position
-   * @param   uint8_t y position
-   * @param   uint16_t color
+   * @param   uint8_t
+   * @param   uint8_t
+   * @param   uint16_t
    * 
    * @return  void
    */
@@ -286,7 +286,7 @@
   /**
    * @desc    RAM Content Show
    *
-   * @param   struct st7735 * lcd
+   * @param   struct st7735 *
    *
    * @return  void
    */
@@ -295,7 +295,7 @@
   /**
    * @desc    RAM Content Hide
    *
-   * @param   struct st7735 * lcd
+   * @param   struct st7735 *
    *
    * @return  void
    */
@@ -313,8 +313,8 @@
   /**
    * @desc    Check text position x, y
    *
-   * @param   unsigned char x - position
-   * @param   unsigned char y - position
+   * @param   unsigned char
+   * @param   unsigned char
    * @param   unsigned char
    *
    * @return  char
@@ -324,8 +324,8 @@
   /**
    * @desc    Set text position x, y
    *
-   * @param   uint8_t x - position
-   * @param   uint8_t y - position
+   * @param   uint8_t
+   * @param   uint8_t
    *
    * @return  char
    */
@@ -353,7 +353,7 @@
 
    * @return void
    */
-  void ST7735_DrawString (struct st7735 *, char*, uint16_t, enum Size);
+  void ST7735_DrawString (struct st7735 *, char *, uint16_t, enum Size);
 
   /**
    * @desc    Draw line
