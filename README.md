@@ -41,7 +41,7 @@ Prior defined for MCU Atmega16 / Atmega8 / Atmega328P. Need to be carefull with 
 | SCK | PB7 | PB5 |
 
 ### Tested
-Library was tested and proved on a **_ST7735 1.8″ TFT Dispay_** with **_Atmega328P_**.
+Library was tested and proved on a **_ST7735 1.8″ TFT Display_** with **_Atmega328P_**.
   
 ## Demonstration
 <img src="img/st7735_v2.jpg" />
